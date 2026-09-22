@@ -164,6 +164,44 @@ Outcome capture is intentionally minimal in v0.1; it exists so cost-per-outcome 
 
 ---
 
+## Record schema v0.2.0 (additive)
+
+`schema_version` `"0.2"` / `"0.2.0"` unlocks Group 10 and the `capacity` record type. v0.1.x records remain valid unchanged. Receivers that advertise known-minor `0.2` MUST reject `infrastructure.*` keys and `record_type: capacity` on `schema_version` &lt; `0.2`.
+
+### Extended `record_type`
+
+| Value | Meaning |
+| --- | --- |
+| `capacity` | Endpoint-level capacity observation over an interval (no caller). Agent and session/task fields MUST be absent. |
+
+### Group 10 — Infrastructure
+
+Wire names are flat (same style as token/cost fields). OTLP attribute reservations use the `oasa.infrastructure.*` namespace and map onto these wire names.
+
+| Field | Type | Cardinality | Description |
+| --- | --- | --- | --- |
+| `pool_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Customer-defined cost pool / cluster identity. Opaque to the spec; org-scoped at the receiver. |
+| `endpoint_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Serving endpoint identity (e.g. deployment / NAI endpoint name). Opaque. |
+| `gpu_seconds` | number ≥ 0 | **Forbidden** on `usage`; **required** on `capacity` | GPU time consumed over the record's interval. Endpoint grain only — not per-request. |
+| `hosting` | enum: `provider_api` \| `self_hosted` \| `dedicated_capacity` | Optional on any record type | Signals that a vendor public price list may not apply. |
+| `interval_seconds` | number &gt; 0 | Optional | Observation window length. `occurred_at` is the interval **end**. Added because `usage` has no interval/window fields. |
+
+Token and cost groups remain permitted (not required) on `capacity` records.
+
+### Draft OTLP attribute reservations (v0.2 binding)
+
+| OASA wire field | Reserved OTLP attribute |
+| --- | --- |
+| `pool_id` | `oasa.infrastructure.pool_id` |
+| `endpoint_id` | `oasa.infrastructure.endpoint_id` |
+| `gpu_seconds` | `oasa.infrastructure.gpu_seconds` |
+| `hosting` | `oasa.infrastructure.hosting` |
+| `interval_seconds` | `oasa.infrastructure.interval_seconds` |
+
+These reservations are draft until OASA 0.2.0 is published. They MUST NOT collide with OpenTelemetry GenAI semantic conventions.
+
+---
+
 ## Mapping tables
 
 Verified against upstream docs on 2026-09-15. OpenTelemetry GenAI conventions are still experimental and may drift; attribute names here are current as of that date, and unmapped OASA fields are noted where no ratified equivalent exists. FOCUS token-economics columns track 1.4 (ratified) and 1.5 (scheduled). x402 V2 communicates requirements via `PAYMENT-REQUIRED` payloads (network, asset, amount, payTo).
