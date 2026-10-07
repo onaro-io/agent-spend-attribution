@@ -14,6 +14,8 @@ OASA is that third layer. It defines a canonical record format that joins runtim
 
 **Read the spec: [SPEC.md](SPEC.md)** · Canonical HTML version: <https://www.onaro.io/spec>
 
+**Companion documents:** [OASA ↔ FOCUS 1.4 mapping](docs/focus-mapping.md) (draft 0.1): column-by-column join between FOCUS Cost and Usage / Invoice Detail and OASA records.
+
 ## What OASA is not
 
 - Not a payment protocol. It does not move money or replace x402.
