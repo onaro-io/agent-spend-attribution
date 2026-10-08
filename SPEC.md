@@ -1,10 +1,10 @@
 # Open Agent Spend Attribution (OASA) Specification
 
-**Version 0.1.1** · Initial public draft 2026-09-14 · Revised 2026-09-15
+**Version 0.1.2** · Initial public draft 2026-09-14 · Revised 2026-10-08
 Published by Onaro (BrianOnAI LLC) · Licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 Canonical HTML version: <https://www.onaro.io/spec>
-Pinned version: <https://www.onaro.io/spec/v0.1.1>
+Pinned version: <https://www.onaro.io/spec/v0.1.2>
 
 ---
 
@@ -45,13 +45,13 @@ Join keys on the edges; attribution in the middle.
 
 ---
 
-## Record schema v0.1.1
+## Record schema v0.1.2
 
 ### Group 1 — Envelope (required)
 
 | Field | Type | Required | Description |
 | --- | --- | --- | --- |
-| `record_id` | string (UUIDv7) | Yes | Globally unique record identifier. |
+| `record_id` | string (UUIDv7) | Yes | Globally unique record identifier. Adapters with a stable source key SHOULD derive it deterministically (see Deterministic record IDs) so that a retried export produces the same ID. |
 | `record_type` | enum: `usage` \| `charge` \| `settlement` \| `allocation` \| `outcome` | Yes | One row = one event class. |
 | `schema_version` | string | Yes | Schema version string; `"0.1"` for this draft. |
 | `occurred_at` | timestamp (RFC 3339, UTC) | Yes | When the event happened. |
@@ -206,6 +206,58 @@ These reservations are draft until OASA 0.2.0 is published. They MUST NOT collid
 
 ---
 
+## Deterministic record IDs
+
+Receivers deduplicate on `record_id`. An adapter that generates a fresh random ID on every attempt turns each retry into a duplicate row. Adapters whose source has a stable key SHOULD derive `record_id` from it with the procedure below; two implementations given the same inputs then produce the same ID, and the result is still a valid UUIDv7 under RFC 9562.
+
+Inputs: `occurred_at` and `source_record_id` of the record being emitted.
+
+1. `ms` = `occurred_at` as Unix time in milliseconds, truncated (not rounded) to the millisecond.
+2. `h` = SHA-256 of the UTF-8 bytes of `source_record_id`.
+3. Build 16 bytes `b`:
+   - `b[0..5]` = `ms` as a 48-bit big-endian integer.
+   - `b[6]` = `0x70 | (h[0] & 0x0F)` (version 7).
+   - `b[7]` = `h[1]`.
+   - `b[8]` = `0x80 | (h[2] & 0x3F)` (RFC 9562 variant).
+   - `b[9..15]` = `h[3..9]`.
+4. Format `b` as a lowercase hyphenated UUID string (8-4-4-4-12).
+
+For OpenTelemetry spans, `source_record_id` is `<trace_id>/<span_id>` in lowercase hex and `occurred_at` is the span end time.
+
+Test vector: `occurred_at` = `2026-09-01T15:04:05Z`, `source_record_id` = `4bf92f3577b34da6a3ce929d0e0e4736/00f067aa0ba902b7` → `record_id` = `01a05d7f-b288-7532-8207-8cb53896d9e1`.
+
+Derived IDs are predictable from their inputs. They are identifiers, not secrets, and MUST NOT be used as access tokens.
+
+---
+
+## Machine-readable schema
+
+The record tables above are published as JSON Schema (draft 2020-12) for adapters to validate their output:
+
+- [`schema/oasa-record.schema.json`](schema/oasa-record.schema.json): one record, `schema_version` `0.1.x`.
+- [`schema/oasa-batch.schema.json`](schema/oasa-batch.schema.json): a batch header plus an array of records.
+- [`examples/`](examples/): golden records, one per file, that validate against the record schema.
+
+Schema identifiers (`$id`) live under `https://oasaspec.org/schema/<major.minor>/` and never change once published; consumers may reference them directly. The schema is generated from this document by `scripts/generate-schema.mjs` and never edited by hand. A field change is a pull request against SPEC.md first; the schema is regenerated from it, and CI fails if the committed schema drifts from these tables. Run `npm run validate` to check every example.
+
+Decimal fields, including every money field, are JSON numbers. Consumers SHOULD parse them with decimal precision rather than binary floating point.
+
+The 0.2.0 draft (Group 10 and `capacity`) is not covered yet; it gets its own schema when 0.2.0 is published. The schema files, examples, and scripts are licensed Apache-2.0 (see [LICENSE-APACHE](LICENSE-APACHE)); the specification text remains CC BY 4.0.
+
+### Batch envelope
+
+Adapters that send records in bulk wrap them in this header. Every record in `records` is validated independently; the header carries no attribution.
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `schema_version` | string | Yes | Schema version of the records in the batch; `"0.1"` for this draft. |
+| `source_system` | string | Yes | System that emitted the batch, e.g. `otel-collector`. |
+| `emitted_at` | timestamp (RFC 3339, UTC) | Yes | When the batch was sent. |
+| `count` | integer | Yes | Number of records in `records`. |
+| `records` | array of records | Yes | OASA records, each valid against the record schema. |
+
+---
+
 ## Mapping tables
 
 Verified against upstream docs on 2026-09-15. OpenTelemetry GenAI conventions are still experimental and may drift; attribute names here are current as of that date, and unmapped OASA fields are noted where no ratified equivalent exists. FOCUS token-economics columns track 1.4 (ratified) and 1.5 (scheduled). x402 V2 communicates requirements via `PAYMENT-REQUIRED` payloads (network, asset, amount, payTo).
@@ -236,10 +288,12 @@ FOCUS 1.4 added token-economics columns; FOCUS 1.5 (Dec 2026 target) adds native
 | `list_cost` | `ListCost` |
 | `billed_cost` | `BilledCost` |
 | `effective_cost` | `EffectiveCost` |
-| `provider` | `ProviderName` |
+| `provider` | `ServiceProviderName` (FOCUS 1.4; formerly `ProviderName`) |
 | `service` | `ServiceName` |
 | `tags` | `Tags` |
 | charge rows (`record_type=charge`) | `ChargeCategory` / charge rows |
+
+Full column-by-column mapping, including the Invoice Detail dataset and worked examples: [OASA ↔ FOCUS 1.4 mapping](docs/focus-mapping.md).
 
 ### OASA ↔ x402
 
@@ -362,6 +416,6 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## Cite this specification
 
-> Open Agent Spend Attribution (OASA) Specification, version 0.1.1. Onaro, 2026-09-14 (revised 2026-09-15). https://www.onaro.io/spec
+> Open Agent Spend Attribution (OASA) Specification, version 0.1.2. Onaro, 2026-09-14 (revised 2026-10-08). https://www.onaro.io/spec
 
 License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution required; adaptations allowed.

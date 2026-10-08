@@ -1,0 +1,46 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oasaspec.org/schema/0.1/oasa-batch.schema.json",
+  "title": "OASA batch (schema_version 0.1.x)",
+  "description": "A batch header plus an array of OASA records, for adapters that send records in bulk. Generated from SPEC.md by scripts/generate-schema.mjs; do not edit by hand.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "source_system",
+    "emitted_at",
+    "count",
+    "records"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "description": "Schema version of the records in the batch; \"0.1\" for this draft.",
+      "type": "string",
+      "pattern": "^0\\.1(\\.[0-9]+)?$",
+      "minLength": 1
+    },
+    "source_system": {
+      "description": "System that emitted the batch, e.g. otel-collector.",
+      "type": "string",
+      "minLength": 1
+    },
+    "emitted_at": {
+      "description": "When the batch was sent.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$",
+      "minLength": 1
+    },
+    "count": {
+      "description": "Number of records in records.",
+      "type": "integer"
+    },
+    "records": {
+      "description": "OASA records, each valid against the record schema.",
+      "type": "array",
+      "items": {
+        "$ref": "oasa-record.schema.json"
+      }
+    }
+  }
+}
