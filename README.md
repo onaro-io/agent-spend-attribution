@@ -48,6 +48,14 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 Pinned version URLs do not change. `https://www.onaro.io/spec` always renders the latest.
 
+## Implementations
+
+| Implementation | What it does | License |
+| --- | --- | --- |
+| [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter) | OpenTelemetry Collector exporter. Turns `gen_ai.*` spans into OASA `usage` records and writes them to an NDJSON file or POSTs them as OASA batches to an HTTP endpoint. Implements the [OASA ↔ OpenTelemetry GenAI](SPEC.md#oasa--opentelemetry-genai) mapping and deterministic record IDs. | Apache-2.0 |
+
+Built something that emits or consumes OASA records? Open a pull request adding it here.
+
 ## Contributing
 
 Corrections, mapping errors, and field proposals are welcome:
