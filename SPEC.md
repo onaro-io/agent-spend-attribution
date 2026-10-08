@@ -110,7 +110,7 @@ Join keys on the edges; attribution in the middle.
 | `list_cost` | decimal | No | List price; mirrors FOCUS `ListCost` semantics. |
 | `billed_cost` | decimal | No | Billed amount; mirrors FOCUS `BilledCost`. |
 | `effective_cost` | decimal | No | Effective cost after discounts; mirrors FOCUS `EffectiveCost`. |
-| `cost_source` | enum: `measured` \| `rated` \| `invoiced` | No | How cost was derived. |
+| `cost_source` | enum: `measured` \| `rated` \| `invoiced` \| `allocated` | No | How cost was derived. `allocated` means the cost was assigned from a shared cost by an allocation rule rather than metered, rated, or invoiced for this record. |
 | `pricing_ref` | string | No | Price-sheet row ID. |
 | `invoice_id` | string | No | Vendor invoice identifier. |
 | `focus_charge_ref` | string | No | Pointer into a FOCUS dataset row. |
@@ -183,6 +183,8 @@ Wire names are flat (same style as token/cost fields). OTLP attribute reservatio
 | `pool_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Customer-defined cost pool / cluster identity. Opaque to the spec; org-scoped at the receiver. |
 | `endpoint_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Serving endpoint identity (e.g. deployment / NAI endpoint name). Opaque. |
 | `gpu_seconds` | number ≥ 0 | **Forbidden** on `usage`; **required** on `capacity` | GPU time consumed over the record's interval. Endpoint grain only — not per-request. |
+| `gpu_busy_seconds` | number ≥ 0 | **Forbidden** on non-`capacity` records; optional on `capacity` | Portion of `gpu_seconds` during which the GPUs were busy. MUST be ≤ `gpu_seconds`. |
+| `energy_wh` | number ≥ 0 | **Forbidden** on non-`capacity` records; optional on `capacity` | Energy consumed by the endpoint over the record's interval, in watt-hours. |
 | `hosting` | enum: `provider_api` \| `self_hosted` \| `dedicated_capacity` | Optional on any record type | Signals that a vendor public price list may not apply. |
 | `interval_seconds` | number &gt; 0 | Optional | Observation window length. `occurred_at` is the interval **end**. Added because `usage` has no interval/window fields. |
 
@@ -195,6 +197,8 @@ Token and cost groups remain permitted (not required) on `capacity` records.
 | `pool_id` | `oasa.infrastructure.pool_id` |
 | `endpoint_id` | `oasa.infrastructure.endpoint_id` |
 | `gpu_seconds` | `oasa.infrastructure.gpu_seconds` |
+| `gpu_busy_seconds` | `oasa.infrastructure.gpu_busy_seconds` |
+| `energy_wh` | `oasa.infrastructure.energy_wh` |
 | `hosting` | `oasa.infrastructure.hosting` |
 | `interval_seconds` | `oasa.infrastructure.interval_seconds` |
 
