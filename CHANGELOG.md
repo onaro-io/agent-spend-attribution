@@ -31,6 +31,9 @@ Adds `allocated` to `cost_source`. Adds machine-readable JSON Schema, golden exa
 - Schema, examples, and scripts are licensed Apache-2.0 (`LICENSE-APACHE`); the specification text stays CC BY 4.0.
 - Permanent schema identifiers under `https://oasaspec.org/schema/`.
 
+### Changed
+- FOCUS mapping table: `provider` maps to `ServiceProviderName` (FOCUS 1.4; formerly `ProviderName`), with a link to the full mapping in `docs/focus-mapping.md`.
+
 ### Unchanged
 - No fields added, removed, or renamed. `schema_version` remains `"0.1"`: an added enum value is additive, so every valid 0.1.1 record is still valid.
 

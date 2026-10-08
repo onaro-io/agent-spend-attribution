@@ -288,10 +288,12 @@ FOCUS 1.4 added token-economics columns; FOCUS 1.5 (Dec 2026 target) adds native
 | `list_cost` | `ListCost` |
 | `billed_cost` | `BilledCost` |
 | `effective_cost` | `EffectiveCost` |
-| `provider` | `ProviderName` |
+| `provider` | `ServiceProviderName` (FOCUS 1.4; formerly `ProviderName`) |
 | `service` | `ServiceName` |
 | `tags` | `Tags` |
 | charge rows (`record_type=charge`) | `ChargeCategory` / charge rows |
+
+Full column-by-column mapping, including the Invoice Detail dataset and worked examples: [OASA ↔ FOCUS 1.4 mapping](docs/focus-mapping.md).
 
 ### OASA ↔ x402
 
