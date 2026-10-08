@@ -185,7 +185,7 @@ Note the asymmetry the example shows: FOCUS tells you 1,540 tokens cost $0.0061 
 
 ## 10b. Worked example: cloud-hosted model with provider-side attribution (Amazon Bedrock)
 
-The OpenAI example above is a direct provider invoice with no attribution in the billing data. Bedrock is the other case: the provider carries a practitioner tag onto the billing row, so attribution exists upstream and OASA's job is to read it, not reconstruct it. All costs are illustrative.
+The OpenAI example above is a direct provider invoice with no attribution in the billing data. Bedrock is the other case: the provider carries a practitioner tag onto the billing row, so attribution exists upstream and OASA's job is to read it, not reconstruct it. All costs are illustrative. The AWS-side setup (inference profiles, cost allocation tag activation, IAM enforcement) and the month-end entries are covered in [How do I allocate Amazon Bedrock costs by department?](https://www.onaro.io/blog/how-to-allocate-amazon-bedrock-costs-by-department)
 
 One request by a support agent through an application inference profile tagged `CostCenter=CustomerSuccess`, `Agent=support-agent`, 4,000 input tokens and 900 output tokens, September 1.
 
