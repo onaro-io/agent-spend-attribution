@@ -4,11 +4,6 @@ All notable changes to the Open Agent Spend Attribution (OASA) Specification.
 
 The specification is additive-only within a major version: fields are added, never renamed or removed, until a major version increment. `schema_version` inside a record changes only when the record format itself changes — a documentation or mapping revision does not move it.
 
-## [Unreleased]
-
-### Added
-- `cost_source` value `allocated`, for cost assigned from a shared cost by an allocation rule. Additive enum value; `schema_version` remains `"0.1"`.
-
 ## [v0.2.0] — 2026-09-22 (draft branch — unpublished)
 
 ### Added
@@ -22,20 +17,22 @@ The specification is additive-only within a major version: fields are added, nev
 - `gpu_seconds` is forbidden on `usage` (per-request GPU attribution out of scope).
 - Publication of 0.2.0 (merge, HTML pin, announcement) is a separate decision.
 
-## [v0.1.2] — 2026-10-07
+## [v0.1.2] — 2026-10-08
 
-Schema and examples added; no field changes.
+Adds `allocated` to `cost_source`. Adds machine-readable JSON Schema, golden examples and validation tooling. Documents deterministic record IDs.
 
 ### Added
+- `cost_source` value `allocated`, for cost assigned from a shared cost by an allocation rule. Additive enum value.
 - `schema/oasa-record.schema.json` and `schema/oasa-batch.schema.json` (JSON Schema draft 2020-12), generated from the SPEC.md field tables by `scripts/generate-schema.mjs`. CI fails if the committed schema drifts from SPEC.md.
 - `examples/`: six golden records (`usage-openai-chat`, `usage-bedrock-inference-profile`, `usage-tool-call`, `charge-focus-row`, `allocation-split`, `settlement-invoice`). The OpenAI and Bedrock records use the figures from `docs/focus-mapping.md`.
 - `npm run validate`, run in CI, checks every example against the schema.
 - "Machine-readable schema" section, including the batch envelope used by bulk adapters.
 - "Deterministic record IDs" section: a UUIDv7 derivation from `occurred_at` and `source_record_id`, with a test vector, so retried exports keep the same `record_id`.
 - Schema, examples, and scripts are licensed Apache-2.0 (`LICENSE-APACHE`); the specification text stays CC BY 4.0.
+- Permanent schema identifiers under `https://oasaspec.org/schema/`.
 
 ### Unchanged
-- No schema fields added, removed, or renamed. `schema_version` remains `"0.1"`.
+- No fields added, removed, or renamed. `schema_version` remains `"0.1"`: an added enum value is additive, so every valid 0.1.1 record is still valid.
 
 ## [v0.1.1] — 2026-09-15
 
@@ -65,6 +62,6 @@ Initial public draft.
 - Published under CC BY 4.0.
 
 [v0.2.0]: https://www.onaro.io/spec (draft — not published)
-[v0.1.2]: https://www.onaro.io/spec
+[v0.1.2]: https://www.onaro.io/spec/v0.1.2
 [v0.1.1]: https://www.onaro.io/spec/v0.1.1
 [v0.1]: https://www.onaro.io/spec/v0.1

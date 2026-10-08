@@ -1,6 +1,6 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://oasa.invalid/schema/0.1/oasa-batch.schema.json",
+  "$id": "https://oasaspec.org/schema/0.1/oasa-batch.schema.json",
   "title": "OASA batch (schema_version 0.1.x)",
   "description": "A batch header plus an array of OASA records, for adapters that send records in bulk. Generated from SPEC.md by scripts/generate-schema.mjs; do not edit by hand.",
   "type": "object",

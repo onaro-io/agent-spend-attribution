@@ -8,8 +8,9 @@ import { readFileSync, writeFileSync, mkdirSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-// Placeholder until the OASA domain exists; every $id derives from this one constant.
-export const SCHEMA_BASE_URL = 'https://oasa.invalid/schema';
+// Permanent home of every OASA schema $id. Consumers reference these URLs, so
+// this value must never change once published, whether or not it resolves.
+export const SCHEMA_BASE_URL = 'https://oasaspec.org/schema';
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const SPEC_PATH = join(ROOT, 'SPEC.md');

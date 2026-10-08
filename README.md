@@ -34,7 +34,7 @@ It is the join between those three.
 
 ## Status
 
-Version 0.1.1 — early public draft. The schema is expected to change based on implementation feedback. It is published openly so that the attribution layer gets defined in the open rather than inside one vendor's product.
+Version 0.1.2 — early public draft. The schema is expected to change based on implementation feedback. It is published openly so that the attribution layer gets defined in the open rather than inside one vendor's product.
 
 Mapping tables were verified against upstream documentation on 2026-09-15. OpenTelemetry GenAI conventions are still experimental and may drift; corrections are welcome.
 
@@ -42,6 +42,7 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 | Version | Date | HTML |
 | --- | --- | --- |
+| v0.1.2 | 2026-10-08 | <https://www.onaro.io/spec/v0.1.2> |
 | v0.1.1 | 2026-09-15 | <https://www.onaro.io/spec/v0.1.1> |
 | v0.1 | 2026-09-14 | <https://www.onaro.io/spec/v0.1> |
 
@@ -63,7 +64,7 @@ The specification text is licensed [CC BY 4.0](https://creativecommons.org/licen
 
 ## Cite this specification
 
-> Open Agent Spend Attribution (OASA) Specification, version 0.1.1. Onaro, 2026-09-14 (revised 2026-09-15). https://www.onaro.io/spec
+> Open Agent Spend Attribution (OASA) Specification, version 0.1.2. Onaro, 2026-09-14 (revised 2026-10-08). https://www.onaro.io/spec
 
 ## Background
 

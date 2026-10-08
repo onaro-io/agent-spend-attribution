@@ -1,10 +1,10 @@
 # Open Agent Spend Attribution (OASA) Specification
 
-**Version 0.1.1** · Initial public draft 2026-09-14 · Revised 2026-09-15
+**Version 0.1.2** · Initial public draft 2026-09-14 · Revised 2026-10-08
 Published by Onaro (BrianOnAI LLC) · Licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
 Canonical HTML version: <https://www.onaro.io/spec>
-Pinned version: <https://www.onaro.io/spec/v0.1.1>
+Pinned version: <https://www.onaro.io/spec/v0.1.2>
 
 ---
 
@@ -45,7 +45,7 @@ Join keys on the edges; attribution in the middle.
 
 ---
 
-## Record schema v0.1.1
+## Record schema v0.1.2
 
 ### Group 1 — Envelope (required)
 
@@ -238,7 +238,7 @@ The record tables above are published as JSON Schema (draft 2020-12) for adapter
 - [`schema/oasa-batch.schema.json`](schema/oasa-batch.schema.json): a batch header plus an array of records.
 - [`examples/`](examples/): golden records, one per file, that validate against the record schema.
 
-The schema is generated from this document by `scripts/generate-schema.mjs` and never edited by hand. A field change is a pull request against SPEC.md first; the schema is regenerated from it, and CI fails if the committed schema drifts from these tables. Run `npm run validate` to check every example.
+Schema identifiers (`$id`) live under `https://oasaspec.org/schema/<major.minor>/` and never change once published; consumers may reference them directly. The schema is generated from this document by `scripts/generate-schema.mjs` and never edited by hand. A field change is a pull request against SPEC.md first; the schema is regenerated from it, and CI fails if the committed schema drifts from these tables. Run `npm run validate` to check every example.
 
 Decimal fields, including every money field, are JSON numbers. Consumers SHOULD parse them with decimal precision rather than binary floating point.
 
@@ -414,6 +414,6 @@ See [CHANGELOG.md](CHANGELOG.md).
 
 ## Cite this specification
 
-> Open Agent Spend Attribution (OASA) Specification, version 0.1.1. Onaro, 2026-09-14 (revised 2026-09-15). https://www.onaro.io/spec
+> Open Agent Spend Attribution (OASA) Specification, version 0.1.2. Onaro, 2026-09-14 (revised 2026-10-08). https://www.onaro.io/spec
 
 License: [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/). Attribution required; adaptations allowed.
