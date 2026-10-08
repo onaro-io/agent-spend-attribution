@@ -1,0 +1,19 @@
+{
+  "record_id": "01a0ef9c-6800-7a79-b9f3-108b9f523b78",
+  "record_type": "allocation",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-30T00:00:00Z",
+  "recorded_at": "2026-10-03T09:00:00Z",
+  "source_system": "allocation-engine",
+  "source_record_id": "alloc-2026-09/rule-shared-vector-db/customer-success",
+  "currency": "USD",
+  "provider": "example-vector-db",
+  "service": "Managed index",
+  "effective_cost": 4.8,
+  "cost_source": "allocated",
+  "invoice_id": "INV-VDB-2026-09",
+  "cost_center": "Customer Success",
+  "allocation_method": "split",
+  "allocation_rule_id": "rule-shared-vector-db",
+  "split_fraction": 0.4
+}

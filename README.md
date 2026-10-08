@@ -59,7 +59,7 @@ Implementation reports are the most useful contribution of all. If you have trie
 
 ## License
 
-The specification text is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to use, adapt, and implement, with attribution.
+The specification text is licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/) — free to use, adapt, and implement, with attribution. The JSON Schema (`schema/`), golden examples (`examples/`), and scripts (`scripts/`) are licensed [Apache-2.0](LICENSE-APACHE).
 
 ## Cite this specification
 

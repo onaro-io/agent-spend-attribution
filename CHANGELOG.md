@@ -22,6 +22,21 @@ The specification is additive-only within a major version: fields are added, nev
 - `gpu_seconds` is forbidden on `usage` (per-request GPU attribution out of scope).
 - Publication of 0.2.0 (merge, HTML pin, announcement) is a separate decision.
 
+## [v0.1.2] — 2026-10-07
+
+Schema and examples added; no field changes.
+
+### Added
+- `schema/oasa-record.schema.json` and `schema/oasa-batch.schema.json` (JSON Schema draft 2020-12), generated from the SPEC.md field tables by `scripts/generate-schema.mjs`. CI fails if the committed schema drifts from SPEC.md.
+- `examples/`: six golden records (`usage-openai-chat`, `usage-bedrock-inference-profile`, `usage-tool-call`, `charge-focus-row`, `allocation-split`, `settlement-invoice`). The OpenAI and Bedrock records use the figures from `docs/focus-mapping.md`.
+- `npm run validate`, run in CI, checks every example against the schema.
+- "Machine-readable schema" section, including the batch envelope used by bulk adapters.
+- "Deterministic record IDs" section: a UUIDv7 derivation from `occurred_at` and `source_record_id`, with a test vector, so retried exports keep the same `record_id`.
+- Schema, examples, and scripts are licensed Apache-2.0 (`LICENSE-APACHE`); the specification text stays CC BY 4.0.
+
+### Unchanged
+- No schema fields added, removed, or renamed. `schema_version` remains `"0.1"`.
+
 ## [v0.1.1] — 2026-09-15
 
 ### Added
@@ -50,5 +65,6 @@ Initial public draft.
 - Published under CC BY 4.0.
 
 [v0.2.0]: https://www.onaro.io/spec (draft — not published)
+[v0.1.2]: https://www.onaro.io/spec
 [v0.1.1]: https://www.onaro.io/spec/v0.1.1
 [v0.1]: https://www.onaro.io/spec/v0.1

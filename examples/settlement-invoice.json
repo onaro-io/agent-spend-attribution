@@ -1,0 +1,17 @@
+{
+  "record_id": "01a1405d-0380-7007-a858-0e449aaa8648",
+  "record_type": "settlement",
+  "schema_version": "0.1",
+  "occurred_at": "2026-10-15T16:20:00Z",
+  "recorded_at": "2026-10-15T18:00:00Z",
+  "source_system": "ap-ledger",
+  "source_record_id": "remit-2026-10-15-0042",
+  "currency": "USD",
+  "provider": "OpenAI",
+  "invoice_id": "INV-2026-09-01",
+  "settlement_rail": "invoice",
+  "settlement_amount": 0.0061,
+  "settlement_ref": "remit-2026-10-15-0042",
+  "settled_at": "2026-10-15T16:20:00Z",
+  "reconciliation_status": "matched"
+}

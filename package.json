@@ -1,0 +1,20 @@
+{
+  "name": "oasa-spec-tools",
+  "private": true,
+  "description": "Schema generation and example validation for the OASA specification.",
+  "license": "Apache-2.0",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "generate": "node scripts/generate-schema.mjs",
+    "check:schema": "node scripts/generate-schema.mjs --check",
+    "validate": "node scripts/validate.mjs",
+    "test": "npm run check:schema && npm run validate"
+  },
+  "devDependencies": {
+    "ajv": "^8.20.0",
+    "ajv-formats": "^3.0.1"
+  }
+}
