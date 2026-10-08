@@ -17,6 +17,15 @@ The specification is additive-only within a major version: fields are added, nev
 - `gpu_seconds` is forbidden on `usage` (per-request GPU attribution out of scope).
 - Publication of 0.2.0 (merge, HTML pin, announcement) is a separate decision.
 
+## Unreleased — editorial
+
+### Added
+- README "Implementations" section, listing [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter).
+- SPEC.md: the OpenTelemetry GenAI mapping table and the `otel-collector` `source_system` value point at oasa-otel-exporter.
+
+### Unchanged
+- No schema change. The note sits outside the field tables, so `schema/` is unchanged.
+
 ## [v0.1.2] — 2026-10-08
 
 Adds `allocated` to `cost_source`. Adds machine-readable JSON Schema, golden examples and validation tooling. Documents deterministic record IDs.

@@ -60,6 +60,8 @@ Join keys on the edges; attribution in the middle.
 | `source_record_id` | string | Yes | Key in the source system. |
 | `currency` | string | Yes | ISO 4217, or CAIP-19 asset ID for on-chain assets. |
 
+`source_system` = `otel-collector` is the value emitted by [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter), an OpenTelemetry Collector exporter that turns GenAI spans into OASA `usage` records.
+
 ### Group 2 — Agent identity
 
 | Field | Type | Required | Description |
@@ -263,6 +265,8 @@ Adapters that send records in bulk wrap them in this header. Every record in `re
 Verified against upstream docs on 2026-09-15. OpenTelemetry GenAI conventions are still experimental and may drift; attribute names here are current as of that date, and unmapped OASA fields are noted where no ratified equivalent exists. FOCUS token-economics columns track 1.4 (ratified) and 1.5 (scheduled). x402 V2 communicates requirements via `PAYMENT-REQUIRED` payloads (network, asset, amount, payTo).
 
 ### OASA ↔ OpenTelemetry GenAI
+
+Implemented by [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter) (OpenTelemetry Collector exporter, v0.1.0).
 
 | OASA | OTel | Notes |
 | --- | --- | --- |
