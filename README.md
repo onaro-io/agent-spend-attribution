@@ -1,6 +1,6 @@
 # Open Agent Spend Attribution (OASA)
 
-**An open specification for attributing AI-agent spend to the agent, task, and cost object responsible for it.**
+**An open specification for attributing AI-agent spend to the agent, task, and cost object responsible for it.** Onaro Meridian is [FinOps for agentic AI](https://www.onaro.io/finops-for-agentic-ai): the system of record that attributes, controls and books what AI agents spend.
 
 [![License: CC BY 4.0](https://img.shields.io/badge/License-CC%20BY%204.0-lightgrey.svg)](https://creativecommons.org/licenses/by/4.0/)
 
