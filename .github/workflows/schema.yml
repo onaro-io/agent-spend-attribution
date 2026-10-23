@@ -22,3 +22,5 @@ jobs:
         run: npm run check:schema
       - name: Examples validate
         run: npm run validate
+      - name: Published schema paths match the repo
+        run: npm run check:published

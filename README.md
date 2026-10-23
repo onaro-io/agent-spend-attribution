@@ -49,6 +49,8 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 Pinned version URLs do not change. `https://www.onaro.io/spec` always renders the latest.
 
+Schema files are served at their `$id` URLs, including `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. DNS for that host is in [Schema hosting](docs/schema-hosting.md).
+
 ## Implementations
 
 | Implementation | What it does | License |

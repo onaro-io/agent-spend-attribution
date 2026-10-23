@@ -1,0 +1,91 @@
+name: Publish schema
+
+on:
+  pull_request:
+    paths:
+      - 'schema/**'
+      - 'scripts/publish-schema.mjs'
+      - 'scripts/check-published-schema.mjs'
+      - '.github/workflows/pages.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  push:
+    branches: [main]
+    paths:
+      - 'schema/**'
+      - 'scripts/publish-schema.mjs'
+      - 'scripts/check-published-schema.mjs'
+      - '.github/workflows/pages.yml'
+      - 'package.json'
+      - 'package-lock.json'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: false
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Published paths match the repo
+        run: npm run check:published
+
+  deploy:
+    needs: check
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run publish-schema
+      - uses: actions/configure-pages@v5
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: site
+      - id: deployment
+        uses: actions/deploy-pages@v4
+      - name: Set custom domain
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          if gh api --method PUT -H "Accept: application/vnd.github+json" \
+            "/repos/${{ github.repository }}/pages" \
+            -f cname='oasaspec.org' \
+            -f build_type='workflow'; then
+            echo "Custom domain set to oasaspec.org"
+          else
+            echo "Actions could not set the custom domain. In Settings, Pages, set the custom domain to oasaspec.org."
+          fi
+
+  verify:
+    needs: deploy
+    if: github.ref == 'refs/heads/main' && github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - name: Live schema URLs match the repo
+        run: npm run check:published:live
