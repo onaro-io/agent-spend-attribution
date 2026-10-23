@@ -29,6 +29,11 @@ The specification is additive-only within a major version: fields are added, nev
 ### Unchanged
 - No schema change. The note sits outside the field tables, so `schema/` is unchanged. Hosting does not alter those documents.
 
+## [v0.1.4] — backlog
+
+### Notes
+- A configured alias of a span or resource attribute follows the span-attribute rule (identity_type = the attribute read, identity_value = its value); the key-as-value rule applies to billing tags only.
+
 ## [v0.1.3] — 2026-10-22
 
 Adds per-field attribution provenance, a `mapping` record type, and the tagging convention. `schema_version` stays `"0.1"`.
