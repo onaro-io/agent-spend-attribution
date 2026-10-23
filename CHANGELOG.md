@@ -26,6 +26,23 @@ The specification is additive-only within a major version: fields are added, nev
 ### Unchanged
 - No schema change. The note sits outside the field tables, so `schema/` is unchanged.
 
+## [v0.1.3] — 2026-10-22
+
+Adds per-field attribution provenance, a `mapping` record type, and the tagging convention. `schema_version` stays `"0.1"`.
+
+### Added
+- `record_type` value `mapping`, for a native identifier bound to common attribution fields over a validity window (`valid_from`, `valid_to`).
+- `attribution`, one object whose keys are the common fields that are set (`agent_id`, `agent_owner`, `cost_center`, `project_id`). Each entry records `method`, `source_system`, `identity_type`, and `identity_value`.
+- `attribution_unattributed_reason`: `no_identity`, `identity_not_mapped`, `tag_missing`, `seat_without_owner`, `not_on_bill`, `mapping_conflict`.
+- `attribution_identity_type` and `attribution_identity_value` on mapping records.
+- Tag convention keys `oasa_cost_center`, `oasa_agent`, `oasa_owner`, `oasa_project`. A convention key on a billing row is `declared`. `mapped` is only a mapping record.
+- OpenTelemetry rows `oasa.agent.id`, `oasa.cost_center`, `oasa.agent.owner`, `oasa.project.id`. `gen_ai.agent.id` maps to `external_identity_ref`.
+- Golden records for each identity pattern, including a charge whose cost center is a declared tag and whose agent is mapped.
+- FOCUS export columns `x_oasa_attribution` and `x_oasa_unattributed_reason`.
+
+### Unchanged
+- No field removed or renamed. Every 0.1.2 golden record still validates. `schema_version` remains `"0.1"`.
+
 ## [v0.1.2] — 2026-10-08
 
 Adds `allocated` to `cost_source`. Adds machine-readable JSON Schema, golden examples and validation tooling. Documents deterministic record IDs.
@@ -74,6 +91,7 @@ Initial public draft.
 - Published under CC BY 4.0.
 
 [v0.2.0]: https://www.onaro.io/spec (draft — not published)
+[v0.1.3]: https://www.onaro.io/spec/v0.1.3
 [v0.1.2]: https://www.onaro.io/spec/v0.1.2
 [v0.1.1]: https://www.onaro.io/spec/v0.1.1
 [v0.1]: https://www.onaro.io/spec/v0.1

@@ -1,0 +1,37 @@
+{
+  "record_id": "01a05d45-0700-7a16-8f77-3a602360f1b8",
+  "record_type": "charge",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-01T14:00:00Z",
+  "recorded_at": "2026-09-02T08:00:00Z",
+  "source_system": "focus-export",
+  "source_record_id": "focus:aws-2026-09:bedrock-input-4000",
+  "currency": "USD",
+  "provider": "Amazon Web Services",
+  "service": "Amazon Bedrock",
+  "unit_type": "tokens",
+  "units_consumed": 4000,
+  "billed_cost": 0.012,
+  "effective_cost": 0.012,
+  "cost_source": "invoiced",
+  "focus_charge_ref": "focus:aws-2026-09:bedrock-input-4000",
+  "agent_id": "support-triage",
+  "cost_center": "cc-4100",
+  "tags": {
+    "oasa_cost_center": "cc-4100"
+  },
+  "attribution": {
+    "cost_center": {
+      "method": "declared",
+      "source_system": "aws.bedrock",
+      "identity_type": "aws.bedrock.inference_profile_tag",
+      "identity_value": "oasa_cost_center"
+    },
+    "agent_id": {
+      "method": "mapped",
+      "source_system": "aws.bedrock",
+      "identity_type": "aws.bedrock.inference_profile",
+      "identity_value": "arn:aws:bedrock:us-east-1:111122223333:application-inference-profile/multi-model"
+    }
+  }
+}

@@ -1,0 +1,16 @@
+{
+  "record_id": "01a05a43-fc00-7936-bb5c-c171c5426613",
+  "record_type": "charge",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-01T00:00:00Z",
+  "recorded_at": "2026-09-02T06:00:00Z",
+  "source_system": "microsoft-365-billing",
+  "source_record_id": "m365-copilot-seat/00000000-0000-0000-0000-000000000000",
+  "currency": "USD",
+  "provider": "Microsoft",
+  "service": "Microsoft 365 Copilot",
+  "billed_cost": 30,
+  "effective_cost": 30,
+  "cost_source": "invoiced",
+  "attribution_unattributed_reason": "seat_without_owner"
+}

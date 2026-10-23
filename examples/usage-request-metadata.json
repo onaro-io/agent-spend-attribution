@@ -1,0 +1,52 @@
+{
+  "record_id": "01a06881-a128-7cc5-ace9-efebbcd03b03",
+  "record_type": "usage",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-03T18:22:01Z",
+  "recorded_at": "2026-09-03T18:22:02Z",
+  "source_system": "otel-collector",
+  "source_record_id": "c0ffee00c0ffee00c0ffee00c0ffee00/0123456789abcdef",
+  "currency": "USD",
+  "agent_id": "support-triage",
+  "agent_name": "Support Triage",
+  "agent_owner": "customer-success",
+  "cost_center": "cc-4100",
+  "project_id": "support-portal",
+  "identity_scheme": "other",
+  "external_identity_ref": "arn:aws:bedrock:us-east-1:111122223333:agent/hosted-support",
+  "trace_id": "c0ffee00c0ffee00c0ffee00c0ffee00",
+  "span_id": "0123456789abcdef",
+  "provider": "openai",
+  "model": "gpt-4.1",
+  "operation": "chat",
+  "input_tokens": 800,
+  "output_tokens": 120,
+  "request_count": 1,
+  "cost_source": "measured",
+  "attribution": {
+    "agent_id": {
+      "method": "declared",
+      "source_system": "otel",
+      "identity_type": "oasa.agent.id",
+      "identity_value": "support-triage"
+    },
+    "agent_owner": {
+      "method": "declared",
+      "source_system": "otel",
+      "identity_type": "oasa.agent.owner",
+      "identity_value": "customer-success"
+    },
+    "cost_center": {
+      "method": "declared",
+      "source_system": "otel",
+      "identity_type": "oasa.cost_center",
+      "identity_value": "cc-4100"
+    },
+    "project_id": {
+      "method": "declared",
+      "source_system": "otel",
+      "identity_type": "oasa.project.id",
+      "identity_value": "support-portal"
+    }
+  }
+}

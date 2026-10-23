@@ -1,6 +1,6 @@
 # OASA ↔ FOCUS 1.4 Mapping
 
-**Status:** Draft 0.1 · 2026-10-05 · companion to OASA 0.1.1 · License CC BY 4.0
+**Status:** Draft 0.2 · 2026-10-22 · companion to OASA 0.1.3 · License CC BY 4.0
 **Scope:** FOCUS 1.4 Cost and Usage dataset (65 columns) and Invoice Detail dataset; notes on FOCUS 1.5 token tracking
 **Repository:** github.com/onaro-io/agent-spend-attribution · `docs/focus-mapping.md`
 
@@ -24,6 +24,8 @@ Three record types participate.
 | `usage` | `trace_id` / `agent_id` to the charge records rated from it | One usage record may map to several FOCUS rows (one per `SkuMeter`), see §4 |
 | `allocation` | Expresses how a charge is split across cost objects; exportable as FOCUS Allocated* columns | Many allocations per charge |
 | `settlement` | `invoice_id` → Invoice Detail dataset; `settlement_ref` → payment | One or more settlements per invoice |
+
+A `mapping` record is not a FOCUS cost row and is not written into a FOCUS cost dataset.
 
 `focus_charge_ref` is a provider-neutral pointer. Recommended form: `focus:<dataset-id>:<row-key>` where `row-key` is the data generator's stable row identifier when one exists, else a hash of (`BillingAccountId`, `ChargePeriodStart`, `SkuPriceId`, `ResourceId`, `SubAccountId`).
 
@@ -83,7 +85,7 @@ Treatment codes: **Carried** = value copied into an OASA field with identical se
 | `PricingUnit` | 1.0 | Referenced | — | e.g. "1M Tokens"; informs rating of usage records. |
 | `RegionId` | 1.0 | Referenced | — |  |
 | `RegionName` | 1.0 | Referenced | — |  |
-| `ResourceId` | 1.0 | Derived | agent_id (when provider resource = agent) | Only when the provider's resource is the agent itself (e.g. an assistant or agent ID); otherwise referenced. |
+| `ResourceId` | 1.0 | Derived | agent_id (when provider resource = agent) | When the resource is the agent, copy it to `agent_id` as `declared`: identity type is that resource's type, identity value is the resource id. Otherwise the id is a native identity a mapping record may translate, and the field that mapping sets is `mapped`. |
 | `ResourceName` | 1.0 | Derived | agent_name (same condition) |  |
 | `ResourceType` | 1.0 | Referenced | — |  |
 | `ServiceCategory` | 1.0 | Referenced | — | Expected "AI and Machine Learning" for model charges. |
@@ -94,10 +96,10 @@ Treatment codes: **Carried** = value copied into an OASA field with identical se
 | `SkuMeter` | 1.1 | Derived | input_tokens \| output_tokens \| cached_tokens \| reasoning_tokens | One FOCUS row per meter; OASA usage record holds all four counts (see §4). |
 | `SkuPriceDetails` | 1.1 | Referenced | pricing_ref (indirect) |  |
 | `SkuPriceId` | 1.0 | Carried | pricing_ref | OASA pricing_ref may hold SkuPriceId when the provider is the price source. |
-| `SubAccountId` | 1.0 | Derived | project_id \| customer_id (when sub-account = cost object) | Provider projects or workspaces often are the cost object; mapping is per adapter. |
+| `SubAccountId` | 1.0 | Derived | project_id \| customer_id (when sub-account = cost object) | When the sub-account id is the organization's `project_id`, the copy is `declared` and the identity type is the platform id (`openai.project_id`, `anthropic.workspace_id`, `gcp.project_id`). A mapping record that translates the sub-account into a different value is `mapped`. |
 | `SubAccountName` | 1.0 | Derived | (same condition) |  |
 | `SubAccountType` | 1.3 | Referenced | — |  |
-| `Tags` | 1.0 | Carried | tags | Provider tags copied; OASA may add attribution keys. |
+| `Tags` | 1.0 | Carried | tags | Provider tags are copied. A convention key also declares the matching common field: `oasa_cost_center` → `cost_center`, `oasa_agent` → `agent_id`, `oasa_owner` → `agent_owner`, `oasa_project` → `project_id`. `identity_type` is the tag mechanism. `identity_value` is the tag key. An accepted alias is declared the same way, and `identity_value` is the key on the row. `mapped` is reserved for a mapping record. |
 
 Summary: 14 carried, 12 derived, 39 referenced. Nothing in FOCUS 1.4 Cost and Usage is lost; 39 columns simply stay where they are.
 
@@ -153,13 +155,14 @@ These OASA groups have no FOCUS equivalent and travel as `x_` columns on export.
 | Control and governance | `budget_id`, `policy_id`, `authorization_ref`, `approval_type` | Pre-spend authorization is outside FOCUS scope |
 | Settlement | `settlement_rail`, `settlement_network`, `settlement_asset`, `settlement_amount`, `settlement_ref`, `settled_at`, `reconciliation_status` | FOCUS describes invoices, not payments |
 | Outcome | `outcome_event_id`, `outcome_type`, `outcome_value`, `outcome_unit`, `business_metric_ref` | Business results are not billing data |
+| Attribution | `attribution`, `attribution_unattributed_reason` | FOCUS has no per-field provenance. `x_oasa_attribution` carries the object as JSON. `x_oasa_unattributed_reason` carries the reason when it is set. |
 
 ## 9. Exporting OASA as a FOCUS-conformant dataset
 
 An OASA ledger can be published as a FOCUS 1.4 Cost and Usage dataset so that any FOCUS-consuming tool can read attributed agent spend. Rules:
 
 1. Every FOCUS Mandatory column is populated from the Carried and Derived mappings in §3; Referenced columns are copied from the source FOCUS row when one exists, else null per FOCUS nullability rules.
-2. Attribution fields are emitted as custom columns with the `x_oasa_` prefix, per FOCUS 1.4 Custom Column Handling: `x_oasa_record_id`, `x_oasa_agent_id`, `x_oasa_agent_name`, `x_oasa_trace_id`, `x_oasa_task_type`, `x_oasa_cost_center`, `x_oasa_project_id`, `x_oasa_customer_id`, `x_oasa_cost_source`, `x_oasa_budget_id`, `x_oasa_settlement_ref`, `x_oasa_reconciliation_status`.
+2. Attribution fields are emitted as custom columns with the `x_oasa_` prefix, per FOCUS 1.4 Custom Column Handling: `x_oasa_record_id`, `x_oasa_agent_id`, `x_oasa_agent_name`, `x_oasa_trace_id`, `x_oasa_task_type`, `x_oasa_cost_center`, `x_oasa_project_id`, `x_oasa_customer_id`, `x_oasa_cost_source`, `x_oasa_budget_id`, `x_oasa_settlement_ref`, `x_oasa_reconciliation_status`, `x_oasa_attribution`, `x_oasa_unattributed_reason`. `x_oasa_attribution` is the `attribution` object as one JSON value, so the dataset does not grow by one column per provenance member. `x_oasa_unattributed_reason` is present when the reason is set.
 3. Self-hosted inference (`cost_source = rated`, no provider row) is emitted with `ServiceProviderName` = the organization's own name, `ChargeCategory = Usage`, `PricingCategory = Standard`, and `x_oasa_cost_source = rated`, so it sits beside provider charges in the same dataset. This is the only case where OASA originates a FOCUS row rather than referencing one.
 4. The dataset metadata declares the `x_oasa_*` columns per FOCUS schema metadata requirements.
 
@@ -177,7 +180,7 @@ One request by a support agent, 1,200 input tokens, 340 output tokens, 800 cache
 
 **OASA usage record (one)**: `agent_id` agent-support-47, `trace_id` 4bf9…, `task_type` ticket_resolve, `input_tokens` 1200, `output_tokens` 340, `cached_tokens` 800, `cost_source` measured, `cost_center` Customer Success.
 
-**OASA charge records (three)**: one per FOCUS row, each with `focus_charge_ref` = `focus:openai-2026-09:L-8842x`, `invoice_id` INV-2026-09-01, `list_cost`/`billed_cost`/`effective_cost` copied, `units_consumed` = that row's `ConsumedQuantity`, `agent_id` and `cost_center` inherited from the usage record via `trace_id`.
+**OASA charge records (three)**: one per FOCUS row, each with `focus_charge_ref` = `focus:openai-2026-09:L-8842x`, `invoice_id` INV-2026-09-01, `list_cost`/`billed_cost`/`effective_cost` copied, `units_consumed` = that row's `ConsumedQuantity`, `agent_id` and `cost_center` inherited from the usage record via `trace_id` (`method` `inherited` on those fields).
 
 **Resulting GL line**: AI services expense, Customer Success, $0.0061, with an audit trail of GL line → 3 OASA charges → 3 FOCUS rows → invoice INV-2026-09-01 lines L-88421 to L-88423.
 
@@ -187,25 +190,26 @@ Note the asymmetry the example shows: FOCUS tells you 1,540 tokens cost $0.0061 
 
 The OpenAI example above is a direct provider invoice with no attribution in the billing data. Bedrock is the other case: the provider carries a practitioner tag onto the billing row, so attribution exists upstream and OASA's job is to read it, not reconstruct it. All costs are illustrative. The AWS-side setup (inference profiles, cost allocation tag activation, IAM enforcement) and the month-end entries are covered in [How do I allocate Amazon Bedrock costs by department?](https://www.onaro.io/blog/how-to-allocate-amazon-bedrock-costs-by-department)
 
-One request by a support agent through an application inference profile tagged `CostCenter=CustomerSuccess`, `Agent=support-agent`, 4,000 input tokens and 900 output tokens, September 1.
+One request through an application inference profile tagged `oasa_cost_center=cc-4100`, 4,000 input tokens and 900 output tokens, September 1. The profile serves more than one agent, so the row has no `oasa_agent` tag. A mapping record binds the profile ARN to `agent_id` `support-triage`.
 
 **FOCUS 1.4 Cost and Usage, two rows (abridged, from the AWS FOCUS-format export)**
 
 | ServiceProviderName | HostProviderName | ServiceName | ResourceId | SkuMeter | ConsumedQuantity | ConsumedUnit | BilledCost | Tags | ChargePeriodStart |
 | --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
-| Amazon Web Services | Amazon Web Services | Amazon Bedrock | arn:…:application-inference-profile/support-agent | Input tokens | 4,000 | Tokens | 0.0120 | {CostCenter: CustomerSuccess, Agent: support-agent} | 2026-09-01T14:00Z |
-| Amazon Web Services | Amazon Web Services | Amazon Bedrock | arn:…:application-inference-profile/support-agent | Output tokens | 900 | Tokens | 0.0135 | {CostCenter: CustomerSuccess, Agent: support-agent} | 2026-09-01T14:00Z |
+| Amazon Web Services | Amazon Web Services | Amazon Bedrock | arn:…:application-inference-profile/multi-model | Input tokens | 4,000 | Tokens | 0.0120 | {oasa_cost_center: cc-4100} | 2026-09-01T14:00Z |
+| Amazon Web Services | Amazon Web Services | Amazon Bedrock | arn:…:application-inference-profile/multi-model | Output tokens | 900 | Tokens | 0.0135 | {oasa_cost_center: cc-4100} | 2026-09-01T14:00Z |
 
-**OASA charge records (two)**: one per row; `provider` = Amazon Web Services, `service` = Amazon Bedrock, `focus_charge_ref` to each row, `cost_source` = `invoiced`, `units_consumed` = that row's `ConsumedQuantity`. Attribution comes from the FOCUS `Tags` map through a configured tag-key mapping: `CostCenter` → `cost_center`, `Agent` → `agent_id`; any remaining tags are copied to OASA `tags`. If a runtime usage record exists for the same request (via `trace_id`), it is joined as usual; if not, the charge records are already attributable on their own.
+**OASA charge records (two)**: one per row; `provider` = Amazon Web Services, `service` = Amazon Bedrock, `focus_charge_ref` to each row, `cost_source` = `invoiced`, `units_consumed` = that row's `ConsumedQuantity`. `cost_center` is `cc-4100`, `declared`, identity type `aws.bedrock.inference_profile_tag`, identity value `oasa_cost_center`. `agent_id` is `support-triage`, `mapped` from the profile ARN. The tag is also copied to `tags`. A golden record for the input-token row is `examples/charge-declared-tag-mapped-agent.json`.
 
 **Rules this example sets**
 
-- `Tags` is the attribution channel when a provider supports practitioner tags on the billed resource. The tag-key mapping is configuration, not schema; OASA does not assume key names.
-- `ResourceId` becomes `agent_id` only when the resource is the agent (one inference profile per agent). When one profile serves several agents, `ResourceId` is referenced and `agent_id` comes from runtime usage records.
-- A row with `Tags` lacking the cost-object key (profile tagged with `Agent` but not `CostCenter`) produces a charge record with `cost_center` empty and `allocation_method` unset; it is unattributed until an allocation record assigns it. The same holds for rows with no `ResourceId` tag at all (direct model-ID invocation). Neither is allocated by default.
+- A convention key in `Tags` declares the field. The names the spec defines are `oasa_cost_center`, `oasa_agent`, `oasa_owner`, and `oasa_project`. `identity_value` is the key. The tag value is the common field.
+- An implementation MAY accept a configured alias, such as an existing key `CostCenter` or `Agent`. An accepted alias is still `declared`, and `identity_value` is the key on the row.
+- `ResourceId` becomes `agent_id` as `declared` only when the resource is the agent. When one profile serves several agents, a mapping record may set `agent_id` (`mapped`) while the convention tag still declares `cost_center`.
+- A row with no convention key, no accepted alias, and no usable `ResourceId` or `SubAccountId` has no common field. The reason is `tag_missing` or `no_identity`. It is not given a default cost center.
 - `HostProviderName` = `ServiceProviderName` here; for a marketplace-hosted third-party model on Bedrock the two differ, and OASA keeps `provider` = the service provider while referencing the host.
 
-**Resulting GL line**: AI services expense, Customer Success, $0.0255, with the audit trail GL line → 2 OASA charges → 2 FOCUS rows → inference profile ARN → the tag the department owner set.
+**Resulting GL line**: AI services expense, cost center `cc-4100`, $0.0255, with the audit trail GL line → 2 OASA charges → 2 FOCUS rows → inference profile ARN → the `oasa_cost_center` tag on the bill and the mapping record for the agent.
 
 Where the OpenAI example shows OASA adding attribution that billing lacks, this one shows OASA preserving attribution that billing already has, and making the untagged remainder visible rather than smearing it.
 
@@ -218,6 +222,7 @@ Where the OpenAI example shows OASA adding attribution that billing lacks, this 
 
 ## 12. Changelog
 
+- 0.2 (2026-10-22): convention keys declare common fields; a tag key on the row is `declared` and a mapping record is `mapped`. Per-field provenance exports as `x_oasa_attribution`. Companion to OASA 0.1.3.
 - 0.1 (2026-10-05): initial draft against FOCUS 1.4 (June 2026) and OASA 0.1.1.
 
 ---

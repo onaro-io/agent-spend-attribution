@@ -22,6 +22,14 @@ const GROUP_HEADING = /^### (Group \d+) — (.+?)\s*(?:\(.*\))?\s*$/;
 const UUID_V7_PATTERN =
   '^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$';
 const UTC_PATTERN = '(Z|[+-]00:00)$';
+const IDENTITY_TYPE_PATTERN = '^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)*$';
+const COMMON_ATTRIBUTION_FIELDS = ['agent_id', 'agent_owner', 'cost_center', 'project_id'];
+const MAPPING_ONLY_FIELDS = [
+  'attribution_identity_type',
+  'attribution_identity_value',
+  'valid_from',
+  'valid_to',
+];
 const DECIMAL_NOTE =
   'Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.';
 
@@ -74,7 +82,117 @@ function typeToSchema(typeCell, field) {
   if (t === 'array of records') {
     return { type: 'array', items: { $ref: 'oasa-record.schema.json' } };
   }
+  if (t === 'attribution') return attributionSchema();
   throw new Error(`${field}: unrecognized SPEC.md type "${t}"`);
+}
+
+function attributionEntrySchema() {
+  return {
+    type: 'object',
+    additionalProperties: false,
+    required: ['method', 'source_system', 'identity_type', 'identity_value'],
+    properties: {
+      method: {
+        type: 'string',
+        enum: ['declared', 'manual', 'mapped', 'inherited', 'rule'],
+        description:
+          'How this field was set. declared, manual, mapped, inherited, or rule.',
+      },
+      source_system: {
+        type: 'string',
+        minLength: 1,
+        description: 'System that minted the native identity for this field.',
+      },
+      identity_type: {
+        type: 'string',
+        minLength: 1,
+        pattern: IDENTITY_TYPE_PATTERN,
+        description:
+          'Native identifier name. Lowercase dotted segments, each starting with a letter.',
+      },
+      identity_value: {
+        type: 'string',
+        minLength: 1,
+        description:
+          'Native identifier value. For a convention tag or label, this is the tag key.',
+      },
+    },
+  };
+}
+
+function attributionSchema() {
+  const properties = {};
+  for (const field of COMMON_ATTRIBUTION_FIELDS) {
+    properties[field] = {
+      $ref: '#/$defs/attributionEntry',
+    };
+  }
+  return {
+    type: 'object',
+    additionalProperties: false,
+    minProperties: 1,
+    properties,
+  };
+}
+
+// Cross-field rules for attribution. A 0.1.2 record omits provenance and stays valid:
+// these clauses apply only when the new properties are present.
+function present(field) {
+  return { type: 'object', required: [field], properties: { [field]: {} } };
+}
+
+function entryHas(field) {
+  return { type: 'object', required: [field], properties: { [field]: {} } };
+}
+
+function attributionConstraints() {
+  return [
+    {
+      if: {
+        type: 'object',
+        required: ['record_type'],
+        properties: { record_type: { const: 'mapping' } },
+      },
+      then: {
+        not: {
+          anyOf: [present('attribution'), present('attribution_unattributed_reason')],
+        },
+      },
+    },
+    {
+      if: {
+        type: 'object',
+        required: ['record_type'],
+        properties: { record_type: { not: { const: 'mapping' } } },
+      },
+      then: { not: { anyOf: MAPPING_ONLY_FIELDS.map(present) } },
+    },
+    {
+      if: { anyOf: COMMON_ATTRIBUTION_FIELDS.map(present) },
+      then: { not: present('attribution_unattributed_reason') },
+    },
+    ...COMMON_ATTRIBUTION_FIELDS.flatMap((field) => [
+      {
+        if: {
+          type: 'object',
+          required: ['attribution'],
+          properties: { attribution: entryHas(field) },
+        },
+        then: present(field),
+      },
+      {
+        if: {
+          type: 'object',
+          required: ['attribution', field],
+          properties: { attribution: { type: 'object' }, [field]: {} },
+        },
+        then: {
+          type: 'object',
+          properties: { attribution: entryHas(field) },
+        },
+      },
+    ]),
+  ];
 }
 
 function parseTableRows(lines, start, stop) {
@@ -158,6 +276,11 @@ function buildProperties(fields, versionPattern) {
       : f.description;
     const schema = { description, ...typeToSchema(f.type, f.field) };
     if (f.field === 'schema_version') schema.pattern = versionPattern;
+    if (f.field === 'attribution_identity_type') {
+      schema.minLength = 1;
+      schema.pattern = IDENTITY_TYPE_PATTERN;
+    }
+    if (f.field === 'attribution_identity_value') schema.minLength = 1;
     if (f.required && schema.type === 'string' && !schema.enum) schema.minLength = 1;
     properties[f.field] = schema;
     if (f.required) required.push(f.field);
@@ -183,6 +306,10 @@ export function buildSchemas(spec) {
     additionalProperties: false,
     properties: rec.properties,
   };
+  if (rec.properties.attribution) {
+    record.$defs = { attributionEntry: attributionEntrySchema() };
+    record.allOf = attributionConstraints();
+  }
 
   const bat = buildProperties(spec.batchFields, versionPattern);
   const batch = {

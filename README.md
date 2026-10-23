@@ -34,7 +34,7 @@ It is the join between those three.
 
 ## Status
 
-Version 0.1.2 — early public draft. The schema is expected to change based on implementation feedback. It is published openly so that the attribution layer gets defined in the open rather than inside one vendor's product.
+Version 0.1.3 — early public draft. The schema is expected to change based on implementation feedback. It is published openly so that the attribution layer gets defined in the open rather than inside one vendor's product.
 
 Mapping tables were verified against upstream documentation on 2026-09-15. OpenTelemetry GenAI conventions are still experimental and may drift; corrections are welcome.
 
@@ -42,6 +42,7 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 | Version | Date | HTML |
 | --- | --- | --- |
+| v0.1.3 | 2026-10-22 | <https://www.onaro.io/spec/v0.1.3> |
 | v0.1.2 | 2026-10-08 | <https://www.onaro.io/spec/v0.1.2> |
 | v0.1.1 | 2026-09-15 | <https://www.onaro.io/spec/v0.1.1> |
 | v0.1 | 2026-09-14 | <https://www.onaro.io/spec/v0.1> |
@@ -52,7 +53,7 @@ Pinned version URLs do not change. `https://www.onaro.io/spec` always renders th
 
 | Implementation | What it does | License |
 | --- | --- | --- |
-| [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter) | OpenTelemetry Collector exporter. Turns `gen_ai.*` spans into OASA `usage` records and writes them to an NDJSON file or POSTs them as OASA batches to an HTTP endpoint. Implements the [OASA ↔ OpenTelemetry GenAI](SPEC.md#oasa--opentelemetry-genai) mapping and deterministic record IDs. | Apache-2.0 |
+| [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter) | OpenTelemetry Collector exporter. Turns `gen_ai.*` spans into OASA `usage` records and writes them to an NDJSON file or POSTs them as OASA batches to an HTTP endpoint. Version 0.1.0 follows the 0.1.2 agent-id row (`gen_ai.agent.id` → `agent_id`) and deterministic record IDs. The [0.1.3 mapping](SPEC.md#oasa--opentelemetry-genai) reads `agent_id` from `oasa.agent.id`. | Apache-2.0 |
 
 Built something that emits or consumes OASA records? Open a pull request adding it here.
 
@@ -72,7 +73,7 @@ The specification text is licensed [CC BY 4.0](https://creativecommons.org/licen
 
 ## Cite this specification
 
-> Open Agent Spend Attribution (OASA) Specification, version 0.1.2. Onaro, 2026-09-14 (revised 2026-10-08). https://www.onaro.io/spec
+> Open Agent Spend Attribution (OASA) Specification, version 0.1.3. Onaro, 2026-09-14 (revised 2026-10-22). https://www.onaro.io/spec
 
 ## Background
 
