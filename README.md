@@ -51,7 +51,7 @@ Pinned version URLs do not change. `https://www.onaro.io/spec` always renders th
 
 ## Guides
 
-- [Attributing agent spend](docs/guides/attribution-best-practices.md) — which identity to use, the tag keys, what never goes in a tag, and how to record provenance.
+- [Attributing agent spend](docs/guides/attribution-best-practices.md) — which identity to use, the tag keys, what never goes in a tag, how to record provenance, and, for each platform, what to configure and what the bill can attribute.
 
 ## Implementations
 

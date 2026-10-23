@@ -22,7 +22,7 @@ The specification is additive-only within a major version: fields are added, nev
 ### Added
 - README "Implementations" section, listing [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter).
 - SPEC.md: the OpenTelemetry GenAI mapping table and the `otel-collector` `source_system` value point at oasa-otel-exporter.
-- [Attributing agent spend](docs/guides/attribution-best-practices.md), a practitioner guide for the 0.1.3 attribution section. No schema change.
+- [Attributing agent spend](docs/guides/attribution-best-practices.md), a guide for the 0.1.3 attribution section: the implementer's procedure, and a section per platform for finance and platform teams. No schema change.
 
 ### Unchanged
 - No schema change. The note sits outside the field tables, so `schema/` is unchanged.
