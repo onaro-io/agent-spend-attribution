@@ -18,6 +18,8 @@
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "github-slugger": "^2.0.0",
+    "marked": "^18.1.1"
   }
 }

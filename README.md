@@ -49,7 +49,7 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 Pinned version URLs do not change. `https://www.onaro.io/spec` always renders the latest.
 
-Schema files are served at their `$id` URLs, including `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. DNS for that host is in [Schema hosting](docs/schema-hosting.md).
+Schema files are served at their `$id` URLs, including `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. The same site renders this specification, the [best-practices guide](docs/guides/attribution-best-practices.md), the [FOCUS mapping](docs/focus-mapping.md), and [Contributing](docs/contributing.md). `https://oasaspec.org/` redirects to the published HTML until that site replaces it. DNS and the other-domain redirects are in [Schema hosting](docs/schema-hosting.md).
 
 ## Implementations
 

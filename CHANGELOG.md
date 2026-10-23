@@ -22,7 +22,7 @@ The specification is additive-only within a major version: fields are added, nev
 ### Added
 - README "Implementations" section, listing [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter).
 - SPEC.md: the OpenTelemetry GenAI mapping table and the `otel-collector` `source_system` value point at oasa-otel-exporter.
-- GitHub Pages publishes each schema file at its `$id`. `schema/oasa-record.schema.json` is served at `https://oasaspec.org/schema/0.1/oasa-record.schema.json`. The 0.1.3 files are served at `https://oasaspec.org/schema/0.1.3/`.
+- GitHub Pages publishes each schema file at its `$id`. `schema/oasa-record.schema.json` is served at `https://oasaspec.org/schema/0.1/oasa-record.schema.json`. The 0.1.3 files are served at `https://oasaspec.org/schema/0.1.3/`. The same site renders the current specification, the best-practices guide, the FOCUS mapping, and a contributing page. `/` redirects to `https://www.onaro.io/spec` until that site replaces the published HTML.
 
 ### Unchanged
 - No schema change. The note sits outside the field tables, so `schema/` is unchanged. Hosting does not alter those documents.

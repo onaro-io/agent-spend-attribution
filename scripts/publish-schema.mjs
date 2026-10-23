@@ -8,6 +8,7 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs';
 import { dirname, join } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { writePages } from './site-pages.mjs';
 
 export const SCHEMA_ORIGIN = 'https://oasaspec.org';
 
@@ -77,11 +78,15 @@ export function writeSite(plan, siteDir = SITE_DIR) {
 
 function main() {
   const plan = publishPlan();
-  writeSite(plan);
+  const siteDir = writeSite(plan);
+  const pages = writePages(siteDir);
   for (const item of plan) {
     console.log(`${item.url}  <=  ${item.file}`);
   }
-  console.log(`Wrote ${plan.length} schema file(s) to site/`);
+  for (const pathname of pages) {
+    console.log(`${pathname}  <=  rendered`);
+  }
+  console.log(`Wrote ${plan.length} schema file(s) and ${pages.length} page(s) to site/`);
 }
 
 if (process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1]) {

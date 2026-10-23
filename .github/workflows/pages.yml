@@ -1,11 +1,14 @@
-name: Publish schema
+name: Publish site
 
 on:
   pull_request:
     paths:
       - 'schema/**'
+      - 'SPEC.md'
+      - 'docs/**'
       - 'scripts/publish-schema.mjs'
       - 'scripts/check-published-schema.mjs'
+      - 'scripts/site-pages.mjs'
       - '.github/workflows/pages.yml'
       - 'package.json'
       - 'package-lock.json'
@@ -13,8 +16,11 @@ on:
     branches: [main]
     paths:
       - 'schema/**'
+      - 'SPEC.md'
+      - 'docs/**'
       - 'scripts/publish-schema.mjs'
       - 'scripts/check-published-schema.mjs'
+      - 'scripts/site-pages.mjs'
       - '.github/workflows/pages.yml'
       - 'package.json'
       - 'package-lock.json'
