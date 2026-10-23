@@ -456,7 +456,7 @@ No other field is proposed. `customer_id`, task, workflow, and session stay as t
 
 ## 11. Implementation follow-ups (Task 5)
 
-This section is not specification text. It is not copied into SPEC.md. It names one implementation, Meridian, so the conformance work has a translation. The exporter notes in §8 are part of the same follow-up list. The full priority-ordered conformance list is Task 5 and waits until the design is approved.
+This section is not specification text. It is not copied into SPEC.md. It names one implementation, Meridian, so the conformance work has a translation. The exporter notes in §8 are part of the same follow-up list. The full priority-ordered conformance list is Task 5.
 
 ### Method translation
 
@@ -474,6 +474,8 @@ Read from `origin/staging` of `bmd523-quantum/caio-assistant` on 2026-10-22, com
 | `no_project` (review instruction; a code search of the repository on 2026-10-22 did not find this string) | `no_identity` |
 
 Meridian's default FOCUS tag keys are `CostCenter` and `Agent` (review instruction). The convention keys are `oasa_cost_center` and `oasa_agent`, plus `oasa_owner` and `oasa_project`. An implementation MAY configure `CostCenter` as an alias of `oasa_cost_center` and `Agent` as an alias of `oasa_agent`. An accepted alias is still `declared`, and `identity_value` is the key on the row.
+
+Meridian's readiness module (`agentic/services/attribution_readiness.py` on `origin/staging`, read 2026-10-22) counts a row toward agent-tag coverage when `tags` contains the key `agent`. That lookup is the alias of `oasa_agent`. The convention key is `oasa_agent`.
 
 Meridian's staging precedence has no `mapped` step, and it ties `manual` with `inherited`. The spec order is `declared`, `manual`, `mapped`, `inherited`, `rule`, `unattributed`. Customer mappings of native ids are new work for that implementation. Meridian department and workflow fields stay outside the OASA common set. `workflow` remains task context. A department maps toward `cost_center` or `agent_owner` when a conformance adapter emits OASA records.
 
