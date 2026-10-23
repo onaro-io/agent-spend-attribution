@@ -51,6 +51,10 @@ Pinned version URLs do not change. `https://oasaspec.org/` renders the current s
 
 Schema files are served at their `$id` URLs, including `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. The same site renders this specification, the [best-practices guide](docs/guides/attribution-best-practices.md), the [FOCUS mapping](docs/focus-mapping.md), and [Contributing](docs/contributing.md). DNS, the other-domain forwards, and the `www.onaro.io` redirects are in [Schema hosting](docs/schema-hosting.md).
 
+## Guides
+
+- [Attributing agent spend](docs/guides/attribution-best-practices.md) — which identity to use, the tag keys, what never goes in a tag, how to record provenance, and, for each platform, what to configure and what the bill can attribute.
+
 ## Implementations
 
 | Implementation | What it does | License |

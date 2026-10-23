@@ -16,6 +16,7 @@ The specification is additive-only within a major version: fields are added, nev
 ### Notes
 - `gpu_seconds` is forbidden on `usage` (per-request GPU attribution out of scope).
 - Publication of 0.2.0 (merge, HTML pin, announcement) is a separate decision.
+- Consider a dedicated correction field instead of `tags.adjustment`. The 0.1.3 Attribution section names that tag on a correcting charge. `tags` is a free-form map and does not define the key.
 
 ## Unreleased — editorial
 
@@ -23,6 +24,7 @@ The specification is additive-only within a major version: fields are added, nev
 - README "Implementations" section, listing [oasa-otel-exporter](https://github.com/onaro-io/oasa-otel-exporter).
 - SPEC.md: the OpenTelemetry GenAI mapping table and the `otel-collector` `source_system` value point at oasa-otel-exporter.
 - GitHub Pages publishes each schema file at its `$id`. `schema/oasa-record.schema.json` is served at `https://oasaspec.org/schema/0.1/oasa-record.schema.json`. The 0.1.3 files are served at `https://oasaspec.org/schema/0.1.3/`. The same site renders the current specification at `/`, `/spec/`, and `/spec/v0.1.3/`, versions 0.1.2 and 0.1.1 from their commits, the best-practices guide, the FOCUS mapping, and a contributing page.
+- [Attributing agent spend](docs/guides/attribution-best-practices.md), a guide for the 0.1.3 attribution section: the implementer's procedure, and a section per platform for finance and platform teams. No schema change.
 
 ### Unchanged
 - No schema change. The note sits outside the field tables, so `schema/` is unchanged. Hosting does not alter those documents.
