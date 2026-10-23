@@ -42,12 +42,14 @@ Mapping tables were verified against upstream documentation on 2026-09-15. OpenT
 
 | Version | Date | HTML |
 | --- | --- | --- |
-| v0.1.3 | 2026-10-22 | <https://www.onaro.io/spec/v0.1.3> |
-| v0.1.2 | 2026-10-08 | <https://www.onaro.io/spec/v0.1.2> |
-| v0.1.1 | 2026-09-15 | <https://www.onaro.io/spec/v0.1.1> |
+| v0.1.3 | 2026-10-22 | <https://oasaspec.org/spec/v0.1.3> |
+| v0.1.2 | 2026-10-08 | <https://oasaspec.org/spec/v0.1.2> |
+| v0.1.1 | 2026-09-15 | <https://oasaspec.org/spec/v0.1.1> |
 | v0.1 | 2026-09-14 | <https://www.onaro.io/spec/v0.1> |
 
-Pinned version URLs do not change. `https://www.onaro.io/spec` always renders the latest.
+Pinned version URLs do not change. `https://oasaspec.org/` renders the current specification. Version 0.1 was not committed in this repository, so its HTML remains on `www.onaro.io` until that text is added here.
+
+Schema files are served at their `$id` URLs, including `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. The same site renders this specification, the [best-practices guide](docs/guides/attribution-best-practices.md), the [FOCUS mapping](docs/focus-mapping.md), and [Contributing](docs/contributing.md). DNS, the other-domain forwards, and the `www.onaro.io` redirects are in [Schema hosting](docs/schema-hosting.md).
 
 ## Implementations
 

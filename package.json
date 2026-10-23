@@ -11,10 +11,15 @@
     "generate": "node scripts/generate-schema.mjs",
     "check:schema": "node scripts/generate-schema.mjs --check",
     "validate": "node scripts/validate.mjs",
-    "test": "npm run check:schema && npm run validate"
+    "publish-schema": "node scripts/publish-schema.mjs",
+    "check:published": "node scripts/check-published-schema.mjs",
+    "check:published:live": "node scripts/check-published-schema.mjs --live",
+    "test": "npm run check:schema && npm run validate && npm run check:published"
   },
   "devDependencies": {
     "ajv": "^8.20.0",
-    "ajv-formats": "^3.0.1"
+    "ajv-formats": "^3.0.1",
+    "github-slugger": "^2.0.0",
+    "marked": "^18.1.1"
   }
 }
