@@ -5,7 +5,6 @@
 **What each platform actually puts on a bill:** [Attribution identity by platform](../research/attribution-identity-by-platform.md), documentation read 2026-10-22.
 
 Sections 1–5 are the implementer's procedure. [Finance and platform teams](#finance-and-platform-teams) is the per-platform part.
-
 Do the work in this order. Stop at the first step that fills the fields you need.
 
 ## 1. Name the four values
