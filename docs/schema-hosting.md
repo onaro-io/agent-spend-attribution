@@ -2,9 +2,20 @@
 
 GitHub Pages publishes this repository as the OASA site. The JSON Schema files are served at the URLs in their `$id` fields. Each file is placed at the path of its `$id`, so `schema/oasa-record.schema.json` is served at `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and `schema/0.1.3/oasa-record.schema.json` is served at `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`. GitHub Pages sends `Content-Type: application/json` for `.json` files. A charset parameter may follow the media type.
 
-The same build renders the current specification at `/spec/` and `/spec/v0.1.3/`, the best-practices guide at `/guides/attribution-best-practices/`, the FOCUS mapping at `/focus-mapping/`, and the contributing page at `/contributing/`. Prior versions link to their published HTML. The page mark is OASA. The footer says the specification is maintained by Onaro.
+`/` and `/spec/` render the current specification. `/spec/v0.1.3/` is the pinned copy of that text. `/spec/v0.1.2/` and `/spec/v0.1.1/` are rendered from the commits of those versions (`v0.1.3` is the only git tag; 0.1.2 is `43d1d10`, 0.1.1 is `072a065`). The best-practices guide is at `/guides/attribution-best-practices/`, the FOCUS mapping at `/focus-mapping/`, and the contributing page at `/contributing/`. The page mark is OASA. The footer says the specification is maintained by Onaro.
 
-Until this site replaces the published HTML, `/` redirects to `https://www.onaro.io/spec`. `scripts/site-pages.mjs` holds that address in `ROOT_REDIRECT_URL`. Clear it to serve the current specification at `/`.
+Version 0.1 was never committed and has no tag, so this site does not publish `/spec/v0.1/`.
+
+## Redirects from www.onaro.io
+
+Send these URLs to this site. `https://www.onaro.io/spec/v0.1` stays where it is until version 0.1 is in the repository.
+
+| URL | Redirects to |
+| --- | --- |
+| `https://www.onaro.io/spec` | `https://oasaspec.org/` |
+| `https://www.onaro.io/spec/v0.1.3` | `https://oasaspec.org/spec/v0.1.3/` |
+| `https://www.onaro.io/spec/v0.1.2` | `https://oasaspec.org/spec/v0.1.2/` |
+| `https://www.onaro.io/spec/v0.1.1` | `https://oasaspec.org/spec/v0.1.1/` |
 
 `npm run check:published` builds the site, checks the schema bytes against the repo, and checks the pages. After a push to `main`, the Publish site workflow deploys the site and then fetches the live `$id` URLs. That live check fails until the DNS records below are in place.
 

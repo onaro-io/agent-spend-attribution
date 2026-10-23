@@ -1,9 +1,10 @@
 // Renders the specification site into site/ next to the schema files.
-// The root stays a redirect to the published HTML until this site replaces it.
-// Clear ROOT_REDIRECT_URL to serve the current specification at /.
+// ROOT_REDIRECT_URL is empty, so / is the current specification.
+// Set it to a URL to send / there instead.
 //
 // SPDX-License-Identifier: Apache-2.0
 
+import { execFileSync } from 'node:child_process';
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, posix } from 'node:path';
 import { fileURLToPath } from 'node:url';
@@ -13,15 +14,31 @@ import { Marked } from 'marked';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const REPO = 'https://github.com/onaro-io/agent-spend-attribution';
 
-export const ROOT_REDIRECT_URL = 'https://www.onaro.io/spec';
+export const ROOT_REDIRECT_URL = '';
 
-const CURRENT_VERSION = { version: '0.1.3', date: '2026-10-22' };
+const CURRENT_VERSION = { version: '0.1.3', date: '2026-10-22', pathname: '/spec/v0.1.3/' };
 
-export const PRIOR_VERSIONS = [
-  { version: '0.1.2', date: '2026-10-08', href: 'https://www.onaro.io/spec/v0.1.2' },
-  { version: '0.1.1', date: '2026-09-15', href: 'https://www.onaro.io/spec/v0.1.1' },
-  { version: '0.1', date: '2026-09-14', href: 'https://www.onaro.io/spec/v0.1' },
+// v0.1.3 is the only tag. Earlier pins are the commits of those published texts.
+// v0.1.2 is the last main commit on 2026-10-08. v0.1.1 is SPEC.md as added on
+// 2026-09-15. No commit and no tag contain version 0.1.
+export const HISTORICAL_VERSIONS = [
+  {
+    version: '0.1.2',
+    date: '2026-10-08',
+    pathname: '/spec/v0.1.2/',
+    tag: 'v0.1.2',
+    rev: '43d1d10d486c76af0e76f015bfb9df5ead7c5f29',
+  },
+  {
+    version: '0.1.1',
+    date: '2026-09-15',
+    pathname: '/spec/v0.1.1/',
+    tag: 'v0.1.1',
+    rev: '072a0654a9d2e1be72b194d29ed4178587c1c0ab',
+  },
 ];
+
+const VERSION_LINKS = [CURRENT_VERSION, ...HISTORICAL_VERSIONS];
 
 const PAGES = [
   {
@@ -132,16 +149,20 @@ function renderMarkdown(markdown, sourceRel, pagePath) {
 }
 
 function versionHtml(page) {
-  const prior = PRIOR_VERSIONS.map((item) => (
-    `<a href="${item.href}">${item.version}</a> <span class="date">(${item.date})</span>`
-  )).join(', ');
-  const here = page.pinned
-    ? `<a href="${relativeUrl(page.pathname, '/spec/')}">Current version</a>`
-    : `<a href="${relativeUrl(page.pathname, '/spec/v0.1.3/')}">Pinned 0.1.3</a>`;
-  const home = ROOT_REDIRECT_URL
-    ? ` The home page redirects to <a href="${escapeHtml(ROOT_REDIRECT_URL)}">the published HTML</a>.`
+  const version = page.version || CURRENT_VERSION.version;
+  const date = page.date || CURRENT_VERSION.date;
+  const others = VERSION_LINKS
+    .filter((item) => item.version !== version)
+    .map((item) => `<a href="${relativeUrl(page.pathname, item.pathname)}">${item.version}</a> <span class="date">(${item.date})</span>`)
+    .join(', ');
+  const onCurrent = page.pathname === '/' || page.pathname === '/spec/';
+  const pin = onCurrent
+    ? ` <a href="${relativeUrl(page.pathname, CURRENT_VERSION.pathname)}">Pinned ${CURRENT_VERSION.version}</a>.`
     : '';
-  return `<p class="versions">Version ${CURRENT_VERSION.version} <span class="date">(${CURRENT_VERSION.date})</span>. ${here}. Prior versions: ${prior}.${home}</p>`;
+  const current = onCurrent
+    ? ''
+    : ` <a href="${relativeUrl(page.pathname, '/spec/')}">Current version</a>.`;
+  return `<p class="versions">Version ${version} <span class="date">(${date})</span>.${pin}${current} Other versions: ${others}.</p>`;
 }
 
 function canonicalUrl(page) {
@@ -151,8 +172,29 @@ function canonicalUrl(page) {
   return `https://oasaspec.org${page.pathname}`;
 }
 
-function renderDocument(page) {
-  const markdown = readFileSync(join(ROOT, page.source), 'utf8');
+function specRevision(version) {
+  try {
+    return execFileSync('git', ['rev-parse', '--verify', `v${version}^{}`], {
+      cwd: ROOT,
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore'],
+    }).trim();
+  } catch {
+    const fallback = HISTORICAL_VERSIONS.find((item) => item.version === version);
+    if (!fallback) throw new Error(`no tag v${version} and no committed SPEC.md for that version`);
+    return fallback.rev;
+  }
+}
+
+function specAt(rev) {
+  return execFileSync('git', ['show', `${rev}:SPEC.md`], {
+    cwd: ROOT,
+    encoding: 'utf8',
+    maxBuffer: 10 * 1024 * 1024,
+  });
+}
+
+function renderDocument(page, markdown = readFileSync(join(ROOT, page.source), 'utf8')) {
   const article = renderMarkdown(markdown, page.source, page.pathname);
   const nav = NAV.map((item) => {
     const current = item.id === page.nav ? ' aria-current="page"' : '';
@@ -170,7 +212,7 @@ function renderDocument(page) {
 </head>
 <body>
 <header>
-<a class="mark" href="${relativeUrl(page.pathname, '/spec/')}">OASA</a>
+<a class="mark" href="${relativeUrl(page.pathname, '/')}">OASA</a>
 <p class="tagline">Open Agent Spend Attribution</p>
 <nav aria-label="Site">
 ${nav}
@@ -315,10 +357,28 @@ export function writePages(siteDir) {
   const cssPath = sitePath(siteDir, '/assets/site.css');
   mkdirSync(dirname(cssPath), { recursive: true });
   writeFileSync(cssPath, CSS);
+  const written = [];
   for (const page of PAGES) {
     const dest = sitePath(siteDir, `${page.pathname}index.html`);
     mkdirSync(dirname(dest), { recursive: true });
     writeFileSync(dest, renderDocument(page));
+    written.push(page.pathname);
+  }
+  for (const version of HISTORICAL_VERSIONS) {
+    const rev = specRevision(version.version);
+    const page = {
+      source: 'SPEC.md',
+      pathname: version.pathname,
+      nav: 'spec',
+      title: `Open Agent Spend Attribution (OASA) Specification ${version.version}`,
+      spec: true,
+      version: version.version,
+      date: version.date,
+    };
+    const dest = sitePath(siteDir, `${page.pathname}index.html`);
+    mkdirSync(dirname(dest), { recursive: true });
+    writeFileSync(dest, renderDocument(page, specAt(rev)));
+    written.push(`${page.pathname} @ ${rev.slice(0, 7)}`);
   }
   const indexPath = sitePath(siteDir, '/index.html');
   if (ROOT_REDIRECT_URL) {
@@ -327,5 +387,6 @@ export function writePages(siteDir) {
     const home = PAGES.find((page) => page.pathname === '/spec/');
     writeFileSync(indexPath, renderDocument({ ...home, pathname: '/' }));
   }
-  return PAGES.map((page) => page.pathname);
+  written.push('/');
+  return written;
 }

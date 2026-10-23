@@ -40,30 +40,35 @@ function readPage(siteDir, pathname) {
   return readFileSync(join(siteDir, pathname), 'utf8');
 }
 
+function versionBar(html) {
+  const start = html.indexOf('class="versions"');
+  const end = html.indexOf('</p>', start);
+  return html.slice(start, end);
+}
+
 function checkPages(siteDir) {
-  if (ROOT_REDIRECT_URL !== 'https://www.onaro.io/spec') {
-    fail(`root redirect is ${ROOT_REDIRECT_URL}`);
-  }
+  if (ROOT_REDIRECT_URL) fail(`root redirect is set to ${ROOT_REDIRECT_URL}`);
   const index = readPage(siteDir, 'index.html');
-  if (!index.includes('content="0; url=https://www.onaro.io/spec"')) {
-    fail('root does not redirect to https://www.onaro.io/spec');
+  if (index.includes('http-equiv="refresh"')) fail('root still redirects');
+  if (!index.includes('id="open-agent-spend-attribution-oasa-specification"')) {
+    fail('root is not the specification');
   }
-  if (!index.includes('location.replace("https://www.onaro.io/spec")')) {
-    fail('root script does not replace the location with https://www.onaro.io/spec');
-  }
-  if (index.includes('id="attribution"')) fail('root contains the specification');
-  if (!index.includes('<p>OASA</p>')) fail('root is missing the OASA name');
+  const indexVersions = versionBar(index);
+  if (!indexVersions.includes('href="spec/v0.1.2/"')) fail('root does not link /spec/v0.1.2/');
+  if (!indexVersions.includes('href="spec/v0.1.1/"')) fail('root does not link /spec/v0.1.1/');
+  if (indexVersions.includes('onaro.io')) fail('root version list still points at onaro.io');
 
   const spec = readPage(siteDir, join('spec', 'index.html'));
   const pinned = readPage(siteDir, join('spec', 'v0.1.3', 'index.html'));
   for (const page of [spec, pinned]) {
-    for (const url of [
-      'https://www.onaro.io/spec/v0.1.2',
-      'https://www.onaro.io/spec/v0.1.1',
-      'https://www.onaro.io/spec/v0.1',
-    ]) {
-      if (!page.includes(`href="${url}"`)) fail(`specification page is missing ${url}`);
+    const versions = versionBar(page);
+    if (!versions.includes('href="v0.1.2/"') && !versions.includes('href="../v0.1.2/"')) {
+      fail('specification page does not link version 0.1.2 on this site');
     }
+    if (!versions.includes('href="v0.1.1/"') && !versions.includes('href="../v0.1.1/"')) {
+      fail('specification page does not link version 0.1.1 on this site');
+    }
+    if (versions.includes('onaro.io')) fail('specification version list still points at onaro.io');
     if (!page.includes('id="attribution"')) fail('specification page is missing the attribution anchor');
     if (!page.includes('id="oasa--opentelemetry-genai"')) {
       fail('specification page is missing the OpenTelemetry anchor');
@@ -81,6 +86,17 @@ function checkPages(siteDir) {
   if (!spec.includes('https://github.com/onaro-io/agent-spend-attribution/blob/main/docs/research/attribution-identity-by-platform.md')) {
     fail('specification research link does not point at the repository');
   }
+
+  const v012 = readPage(siteDir, join('spec', 'v0.1.2', 'index.html'));
+  if (!v012.includes('<strong>Version 0.1.2</strong>')) fail('0.1.2 page is not that specification');
+  if (v012.includes('id="attribution"')) fail('0.1.2 page includes the 0.1.3 attribution section');
+  if (!v012.includes('id="machine-readable-schema"')) fail('0.1.2 page is missing its schema section');
+  if (versionBar(v012).includes('onaro.io')) fail('0.1.2 version list still points at onaro.io');
+
+  const v011 = readPage(siteDir, join('spec', 'v0.1.1', 'index.html'));
+  if (!v011.includes('<strong>Version 0.1.1</strong>')) fail('0.1.1 page is not that specification');
+  if (v011.includes('id="machine-readable-schema"')) fail('0.1.1 page includes the 0.1.2 schema section');
+  if (versionBar(v011).includes('onaro.io')) fail('0.1.1 version list still points at onaro.io');
 
   const guide = readPage(siteDir, join('guides', 'attribution-best-practices', 'index.html'));
   if (!guide.includes('id="attributing-agent-spend"')) fail('best-practices page is missing its heading');
@@ -104,7 +120,7 @@ function checkPages(siteDir) {
     }
     if (!page.includes('>OASA</a>')) fail('a page is missing the OASA mark');
   }
-  if (!process.exitCode) console.log('ok   spec, guide, FOCUS mapping, contributing, and the root redirect');
+  if (!process.exitCode) console.log('ok   spec, prior versions, guide, FOCUS mapping, and contributing');
 }
 
 async function fetchPublished(url) {
