@@ -1,0 +1,17 @@
+{
+  "record_id": "01a0054b-0e00-76be-9e07-b4e5cc1d6fb9",
+  "record_type": "mapping",
+  "schema_version": "0.1",
+  "occurred_at": "2026-08-15T12:00:00Z",
+  "recorded_at": "2026-08-15T12:00:01Z",
+  "source_system": "attribution-registry",
+  "source_record_id": "anthropic.workspace_id/wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ",
+  "currency": "USD",
+  "attribution_identity_type": "anthropic.workspace_id",
+  "attribution_identity_value": "wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ",
+  "valid_from": "2026-09-01T00:00:00Z",
+  "agent_id": "support-triage",
+  "agent_owner": "customer-success",
+  "cost_center": "cc-4100",
+  "project_id": "support-portal"
+}

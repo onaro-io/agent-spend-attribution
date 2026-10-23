@@ -1,0 +1,45 @@
+{
+  "record_id": "01a05f6a-5800-7660-b44d-725870f782dd",
+  "record_type": "charge",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-02T00:00:00Z",
+  "recorded_at": "2026-09-03T06:00:00Z",
+  "source_system": "anthropic-billing",
+  "source_record_id": "anthropic-cost/2026-09-02/wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ",
+  "currency": "USD",
+  "provider": "anthropic",
+  "service": "Claude API",
+  "billed_cost": 12.4,
+  "effective_cost": 12.4,
+  "cost_source": "invoiced",
+  "agent_id": "support-triage",
+  "agent_owner": "customer-success",
+  "cost_center": "cc-4100",
+  "project_id": "support-portal",
+  "attribution": {
+    "agent_id": {
+      "method": "mapped",
+      "source_system": "anthropic",
+      "identity_type": "anthropic.workspace_id",
+      "identity_value": "wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ"
+    },
+    "agent_owner": {
+      "method": "mapped",
+      "source_system": "anthropic",
+      "identity_type": "anthropic.workspace_id",
+      "identity_value": "wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ"
+    },
+    "cost_center": {
+      "method": "mapped",
+      "source_system": "anthropic",
+      "identity_type": "anthropic.workspace_id",
+      "identity_value": "wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ"
+    },
+    "project_id": {
+      "method": "mapped",
+      "source_system": "anthropic",
+      "identity_type": "anthropic.workspace_id",
+      "identity_value": "wrkspc_01JwQvzr7rXLA5AGx3HKfFUJ"
+    }
+  }
+}

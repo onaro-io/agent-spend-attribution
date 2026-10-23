@@ -1,0 +1,33 @@
+{
+  "record_id": "01a067d1-d540-7013-bd6e-da627fda77bc",
+  "record_type": "usage",
+  "schema_version": "0.1",
+  "occurred_at": "2026-09-03T15:10:00Z",
+  "recorded_at": "2026-09-03T15:10:01Z",
+  "source_system": "litellm",
+  "source_record_id": "litellm-spendlog/vk-support-triage-001",
+  "currency": "USD",
+  "provider": "openai",
+  "model": "gpt-4.1",
+  "operation": "chat",
+  "input_tokens": 500,
+  "output_tokens": 80,
+  "request_count": 1,
+  "cost_source": "measured",
+  "agent_id": "support-triage",
+  "cost_center": "cc-4100",
+  "attribution": {
+    "agent_id": {
+      "method": "mapped",
+      "source_system": "litellm",
+      "identity_type": "litellm.virtual_key",
+      "identity_value": "vk-support-triage-001"
+    },
+    "cost_center": {
+      "method": "mapped",
+      "source_system": "litellm",
+      "identity_type": "litellm.virtual_key",
+      "identity_value": "vk-support-triage-001"
+    }
+  }
+}
