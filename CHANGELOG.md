@@ -36,12 +36,15 @@ Adds per-field attribution provenance, a `mapping` record type, and the tagging 
 - `attribution_unattributed_reason`: `no_identity`, `identity_not_mapped`, `tag_missing`, `seat_without_owner`, `not_on_bill`, `mapping_conflict`.
 - `attribution_identity_type` and `attribution_identity_value` on mapping records.
 - Tag convention keys `oasa_cost_center`, `oasa_agent`, `oasa_owner`, `oasa_project`. A convention key on a billing row is `declared`. `mapped` is only a mapping record.
-- OpenTelemetry rows `oasa.agent.id`, `oasa.cost_center`, `oasa.agent.owner`, `oasa.project.id`. `gen_ai.agent.id` maps to `external_identity_ref`.
+- OpenTelemetry agent mapping: `oasa.agent.id` maps to `agent_id`. `gen_ai.agent.id` maps to `external_identity_ref`. Output from the 0.1.2 exporter, which wrote `gen_ai.agent.id` into `agent_id`, remains valid.
+- OpenTelemetry rows `oasa.cost_center`, `oasa.agent.owner`, and `oasa.project.id` for the other three common fields.
 - Golden records for each identity pattern, including a charge whose cost center is a declared tag and whose agent is mapped.
 - FOCUS export columns `x_oasa_attribution` and `x_oasa_unattributed_reason`.
+- JSON Schema `$id` `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json` and `https://oasaspec.org/schema/0.1.3/oasa-batch.schema.json`.
 
 ### Unchanged
 - No field removed or renamed. Every 0.1.2 golden record still validates. `schema_version` remains `"0.1"`.
+- The 0.1.2 schema `$id` `https://oasaspec.org/schema/0.1/oasa-record.schema.json` and the published document at that identifier (`schema/oasa-record.schema.json`, and the batch schema beside it) are unchanged.
 
 ## [v0.1.2] — 2026-10-08
 

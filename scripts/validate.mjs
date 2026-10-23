@@ -1,6 +1,7 @@
-// Validates every examples/*.json file against schema/oasa-record.schema.json,
-// validates a batch built from them against schema/oasa-batch.schema.json,
-// and confirms the schema rejects known-bad records.
+// Validates every examples/*.json file against schema/0.1.3/oasa-record.schema.json,
+// validates a batch built from them against schema/0.1.3/oasa-batch.schema.json,
+// checks the published 0.1 schema is still the 0.1.2 document, and confirms
+// the 0.1.3 schema rejects known-bad records.
 //
 // SPDX-License-Identifier: Apache-2.0
 
@@ -14,8 +15,15 @@ import { deterministicRecordId } from './record-id.mjs';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..');
 const readJson = (p) => JSON.parse(readFileSync(p, 'utf8'));
 
-const recordSchema = readJson(join(ROOT, 'schema', 'oasa-record.schema.json'));
-const batchSchema = readJson(join(ROOT, 'schema', 'oasa-batch.schema.json'));
+const recordSchema = readJson(join(ROOT, 'schema', '0.1.3', 'oasa-record.schema.json'));
+const batchSchema = readJson(join(ROOT, 'schema', '0.1.3', 'oasa-batch.schema.json'));
+const publishedRecordSchema = readJson(join(ROOT, 'schema', 'oasa-record.schema.json'));
+const publishedBatchSchema = readJson(join(ROOT, 'schema', 'oasa-batch.schema.json'));
+
+const ID_013_RECORD = 'https://oasaspec.org/schema/0.1.3/oasa-record.schema.json';
+const ID_013_BATCH = 'https://oasaspec.org/schema/0.1.3/oasa-batch.schema.json';
+const ID_01_RECORD = 'https://oasaspec.org/schema/0.1/oasa-record.schema.json';
+const ID_01_BATCH = 'https://oasaspec.org/schema/0.1/oasa-batch.schema.json';
 
 const ajv = new Ajv2020({ allErrors: true, strict: true });
 addFormats(ajv);
@@ -31,6 +39,18 @@ const fail = (msg) => {
   failures++;
   console.error(`FAIL ${msg}`);
 };
+
+function expectId(schema, id, label) {
+  if (schema.$id !== id) fail(`${label} $id is ${schema.$id}, expected ${id}`);
+  else console.log(`ok   ${label} $id`);
+}
+expectId(recordSchema, ID_013_RECORD, '0.1.3 record schema');
+expectId(batchSchema, ID_013_BATCH, '0.1.3 batch schema');
+expectId(publishedRecordSchema, ID_01_RECORD, 'published 0.1 record schema');
+expectId(publishedBatchSchema, ID_01_BATCH, 'published 0.1 batch schema');
+if (publishedRecordSchema.properties && publishedRecordSchema.properties.attribution) {
+  fail('published 0.1 record schema contains attribution');
+}
 
 const exampleDir = join(ROOT, 'examples');
 const files = readdirSync(exampleDir).filter((f) => f.endsWith('.json')).sort();
@@ -101,11 +121,24 @@ for (const file of files) {
 }
 
 if (V012_EXAMPLES.every((file) => v012ok.has(file))) {
-  console.log('ok   all 6 records from 0.1.2 still validate');
+  console.log('ok   all 6 records from 0.1.2 still validate against 0.1.3');
 } else {
   const missing = V012_EXAMPLES.filter((file) => !v012ok.has(file));
   fail(`0.1.2 golden records failed or are missing: ${missing.join(', ')}`);
 }
+
+const ajv012 = new Ajv2020({ allErrors: true, strict: true });
+addFormats(ajv012);
+const validatePublished = ajv012.compile(publishedRecordSchema);
+let publishedOk = true;
+for (const file of V012_EXAMPLES) {
+  const record = readJson(join(exampleDir, file));
+  if (!validatePublished(record)) {
+    publishedOk = false;
+    fail(`published 0.1 schema rejected examples/${file}: ${describe(validatePublished.errors)}`);
+  }
+}
+if (publishedOk) console.log('ok   published 0.1 schema still accepts every 0.1.2 golden record');
 
 const batch = {
   schema_version: '0.1',

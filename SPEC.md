@@ -387,11 +387,13 @@ Derived IDs are predictable from their inputs. They are identifiers, not secrets
 
 The record tables above are published as JSON Schema (draft 2020-12) for adapters to validate their output:
 
-- [`schema/oasa-record.schema.json`](schema/oasa-record.schema.json): one record, `schema_version` `0.1.x`.
-- [`schema/oasa-batch.schema.json`](schema/oasa-batch.schema.json): a batch header plus an array of records.
-- [`examples/`](examples/): golden records, one per file, that validate against the record schema.
+- [`schema/oasa-record.schema.json`](schema/oasa-record.schema.json): the 0.1.2 record schema. `$id` `https://oasaspec.org/schema/0.1/oasa-record.schema.json`. This document is unchanged in 0.1.3.
+- [`schema/oasa-batch.schema.json`](schema/oasa-batch.schema.json): the 0.1.2 batch schema. `$id` `https://oasaspec.org/schema/0.1/oasa-batch.schema.json`.
+- [`schema/0.1.3/oasa-record.schema.json`](schema/0.1.3/oasa-record.schema.json): the 0.1.3 record schema. `$id` `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json`.
+- [`schema/0.1.3/oasa-batch.schema.json`](schema/0.1.3/oasa-batch.schema.json): the 0.1.3 batch schema. `$id` `https://oasaspec.org/schema/0.1.3/oasa-batch.schema.json`.
+- [`examples/`](examples/): golden records, one per file. Current examples validate against the 0.1.3 record schema. The six records published with 0.1.2 also validate against the unchanged 0.1.2 schema.
 
-Schema identifiers (`$id`) live under `https://oasaspec.org/schema/<major.minor>/` and never change once published; consumers may reference them directly. The schema is generated from this document by `scripts/generate-schema.mjs` and never edited by hand. A field change is a pull request against SPEC.md first; the schema is regenerated from it, and CI fails if the committed schema drifts from these tables. Run `npm run validate` to check every example, including the six golden records published with 0.1.2.
+A published `$id` never changes, and the document at that identifier never changes. 0.1.3 has its own identifier. `schema_version` inside a record stays `"0.1"`. The 0.1.3 schema is generated from this document by `scripts/generate-schema.mjs` and never edited by hand. A field change is a pull request against SPEC.md first; the schema is regenerated from it, and CI fails if the committed 0.1.3 schema drifts from these tables. Run `npm run validate` to check every example, including the six golden records published with 0.1.2.
 
 Decimal fields, including every money field, are JSON numbers. Consumers SHOULD parse them with decimal precision rather than binary floating point.
 
