@@ -1,0 +1,17 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17e17-0400-7bfb-8685-ac2a59d0f956",
+  "occurred_at": "2026-10-27T16:00:00Z",
+  "recorded_at": "2026-10-27T16:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "capacity/pool-a",
+  "currency": "USD",
+  "record_type": "capacity",
+  "pool_id": "pool-a",
+  "endpoint_id": "endpoint-a",
+  "gpu_seconds": 3600,
+  "gpu_busy_seconds": 1200,
+  "energy_wh": 450,
+  "hosting": "dedicated_capacity",
+  "interval_seconds": 3600
+}

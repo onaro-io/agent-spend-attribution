@@ -1,0 +1,20 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17d3b-4a00-75de-a810-2604c85611df",
+  "occurred_at": "2026-10-27T12:00:00Z",
+  "recorded_at": "2026-10-27T12:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "semantic/pair",
+  "currency": "USD",
+  "record_type": "mapping",
+  "attribution_identity_type": "anthropic.workspace_id",
+  "attribution_identity_value": "wrkspc_01",
+  "external_identities": [
+    {
+      "identity_type": "entra.agent_id",
+      "identity_value": "agent-1"
+    }
+  ],
+  "valid_from": "2026-10-01T00:00:00Z",
+  "agent_owner": "alice"
+}

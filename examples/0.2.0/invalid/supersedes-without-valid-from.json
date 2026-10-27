@@ -1,0 +1,14 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a05d7f-b288-7532-8207-8cb53896d9e1",
+  "record_type": "mapping",
+  "occurred_at": "2026-10-27T12:00:00Z",
+  "recorded_at": "2026-10-27T12:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "invalid/supersedes-without-valid-from",
+  "currency": "USD",
+  "supersedes": "01a17d3b-4a00-75f4-8e5a-bd4501f51c39",
+  "attribution_identity_type": "entra.agent_id",
+  "attribution_identity_value": "agent-1",
+  "agent_owner": "bob"
+}

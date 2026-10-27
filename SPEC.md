@@ -1,10 +1,11 @@
 # Open Agent Spend Attribution (OASA) Specification
 
-**Version 0.1.3** · Initial public draft 2026-09-14 · Revised 2026-10-22
+**Version 0.2.0** · Initial public draft 2026-09-14 · Revised 2026-10-27
 Published by Onaro (BrianOnAI LLC) · Licensed [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/)
 
-Canonical HTML version: <https://www.onaro.io/spec>
-Pinned version: <https://www.onaro.io/spec/v0.1.3>
+Canonical HTML version: <https://oasaspec.org/spec>
+Pinned version: <https://oasaspec.org/spec/v0.2.0>
+Prior version: <https://oasaspec.org/spec/v0.1.3>
 
 ---
 
@@ -317,15 +318,58 @@ These four `oasa_` keys are the names this specification defines. An implementat
 
 ---
 
-## Record schema v0.2.0 (additive)
+## Record schema v0.2.0
 
-`schema_version` `"0.2"` / `"0.2.0"` unlocks Group 10 and the `capacity` record type. v0.1.x records remain valid unchanged. Receivers that advertise known-minor `0.2` MUST reject `infrastructure.*` keys and `record_type: capacity` on `schema_version` &lt; `0.2`.
+`schema_version` `"0.2"` or `"0.2.0"` is required on a record that uses a field or record type defined in this section. A record that uses only 0.1 fields keeps `schema_version` `"0.1"` and stays valid under the 0.1.3 schema. Receivers that advertise known-minor `0.2` MUST reject `infrastructure.*` keys and `record_type: capacity` on `schema_version` &lt; `0.2`.
+
+### Migration from 0.1.3
+
+No 0.1 field is renamed or removed. `external_identity_ref`, `identity_scheme`, `agent_owner`, `agent_name`, `attribution_identity_type`, `attribution_identity_value`, `valid_from`, and `valid_to` keep their 0.1.3 meanings. The 0.1.3 schema at `https://oasaspec.org/schema/0.1.3/oasa-record.schema.json` is unchanged. Records that use a 0.2 feature validate against `https://oasaspec.org/schema/0.2.0/oasa-record.schema.json`.
+
+Every timestamp on a 0.2 record is RFC 3339 in UTC (`Z` or a zero offset). `record_id` remains a hyphenated UUIDv7. A deterministic v7, timestamp from `occurred_at` and the remaining bits from a hash of a stable source key, is conforming. The procedure is Deterministic record IDs. `currency` is an ISO 4217 code or a CAIP-19 asset id. `split_fraction` is a decimal from 0 to 1. `tags` is a map of string to string. Integer fields are integers. The 0.2 schema rejects unknown fields, including `organization_id`, `org_id`, and any key whose name starts with `oasa.`. Those `oasa.` names are OpenTelemetry attribute names, not record keys.
+
+`cost_source` includes `allocated`. `gpu_seconds` is forbidden on every record type other than `capacity`. `gpu_busy_seconds` and `energy_wh` are capacity-only, and `gpu_busy_seconds` MUST be ≤ `gpu_seconds`.
 
 ### Extended `record_type`
 
 | Value | Meaning |
 | --- | --- |
 | `capacity` | Endpoint-level capacity observation over an interval (no caller). Agent and session/task fields MUST be absent. |
+
+`mapping` remains the 0.1.3 record type. This version adds identities, owners, and `supersedes` to it. It does not define a second mapping type.
+
+### Fields added in 0.2.0
+
+| Field | Type | Required | Description |
+| --- | --- | --- | --- |
+| `external_identities` | external_identities | No | Additional native identities. Each entry is `identity_type` and `identity_value`. The same `identity_type` MUST NOT appear twice. |
+| `owners` | owners | No | Accountable parties. Each entry is `principal` and an optional `role`. |
+| `supersedes` | string (UUIDv7) | No | On a `mapping` record, the `record_id` of the mapping this record replaces. MUST be absent on every other record type. |
+
+`identity_type` uses the 0.1.3 form: lowercase dotted segments, not a closed enum. Initial types for the identities this version calls out:
+
+| Identity | `identity_type` |
+| --- | --- |
+| Entra agent identity | `entra.agent_id` |
+| Hosted agent id from OpenTelemetry | `gen_ai.agent.id` |
+| Amazon Bedrock agent id | `aws.bedrock.agent_id` |
+| Platform API key, when no finer type is defined | `platform.api_key` |
+
+`openai.api_key_id`, `anthropic.api_key_id`, and the other 0.1.3 names stay in use. `identity_scheme` stays `internal`, `erc8004`, or `other`. It does not take these platform names.
+
+`external_identity_ref` plus `identity_scheme` remains the single-identity shorthand. When a record sets both the shorthand and `external_identities`, the ref MUST equal one `identity_value` in the array.
+
+`agent_owner` remains one string, the principal accountable for the agent. `owners` extends it. `oasa_owner` still copies into `agent_owner` only. `initiating_principal` remains the actor who started the run.
+
+When `owners` is present:
+
+- At most one entry has `role` `owner`.
+- A missing `role` means `owner` only when that entry is the only one.
+- If `agent_owner` is also set, it MUST equal the principal of that owner entry.
+
+When `owners` is absent, `agent_owner` stands on its own.
+
+Documented role examples are `owner`, `sponsor`, and `technical_contact`. Other role strings are allowed.
 
 ### Group 10 — Infrastructure
 
@@ -335,15 +379,27 @@ Wire names are flat (same style as token/cost fields). OTLP attribute reservatio
 | --- | --- | --- | --- |
 | `pool_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Customer-defined cost pool / cluster identity. Opaque to the spec; org-scoped at the receiver. |
 | `endpoint_id` | string, ≤128 | Optional on `usage`; **required** on `capacity` | Serving endpoint identity (e.g. deployment / NAI endpoint name). Opaque. |
-| `gpu_seconds` | number ≥ 0 | **Forbidden** on `usage`; **required** on `capacity` | GPU time consumed over the record's interval. Endpoint grain only — not per-request. |
+| `gpu_seconds` | number ≥ 0 | **Forbidden** on every non-`capacity` record; **required** on `capacity` | GPU time consumed over the record's interval. Endpoint grain only — not per-request. |
 | `gpu_busy_seconds` | number ≥ 0 | **Forbidden** on non-`capacity` records; optional on `capacity` | Portion of `gpu_seconds` during which the GPUs were busy. MUST be ≤ `gpu_seconds`. |
 | `energy_wh` | number ≥ 0 | **Forbidden** on non-`capacity` records; optional on `capacity` | Energy consumed by the endpoint over the record's interval, in watt-hours. |
 | `hosting` | enum: `provider_api` \| `self_hosted` \| `dedicated_capacity` | Optional on any record type | Signals that a vendor public price list may not apply. |
-| `interval_seconds` | number &gt; 0 | Optional | Observation window length. `occurred_at` is the interval **end**. Added because `usage` has no interval/window fields. |
+| `interval_seconds` | number > 0 | Optional | Observation window length. `occurred_at` is the interval **end**. Added because `usage` has no interval/window fields. |
 
-Token and cost groups remain permitted (not required) on `capacity` records.
+Token and cost groups remain permitted (not required) on `capacity` records. On `capacity`, every field in Group 2 (Agent identity) and Group 3 (Task and session context) MUST be absent, and so must `external_identities` and `owners`.
 
-### Draft OTLP attribute reservations (v0.2 binding)
+### Mapping records in 0.2.0
+
+A 0.2 `mapping` record still carries the envelope. It MUST include at least one identity: the 0.1.3 pair `attribution_identity_type` and `attribution_identity_value`, or one or more `external_identities` entries. When both are present, the pair MUST be one of those entries. `valid_from` and `valid_to` keep their 0.1.3 meanings. `agent_name` MAY be set. `owners` MAY be set, and `agent_owner` stays consistent with `owners` as above.
+
+Each `external_identities` entry is bound on its own to that record's target fields (`agent_id`, `agent_owner`, `owners`, `agent_name`, `cost_center`, `project_id`). The singular pair is one binding of the same kind. Overlap and `mapping_conflict` are checked per `identity_type` and `identity_value`. A conflict on one entry does not remove another entry on the same record.
+
+Cost fields, token counts, `request_count`, `units_consumed`, `gpu_seconds`, `gpu_busy_seconds`, and `energy_wh` MUST be absent on a `mapping` record. A mapping record carries no money.
+
+In 0.1.3, a mapping whose `valid_to` is absent stays in force, and there is no way to end it after publication. Receivers deduplicate on `record_id`, so a second document with the same `record_id` is that record again, not a replacement. A later mapping for the same identity overlaps the open window, and 0.1.3 applies neither. The only 0.1.3 bound is a `valid_to` written on the record before it is published.
+
+`supersedes` is the 0.2 way to close that window. It names the earlier mapping's `record_id`. `valid_from` MUST be set on the new record. For resolution, the named record's window ends at the new record's `valid_from` when its `valid_to` is absent or later than that instant. The new record and the record it names are not an overlapping pair. Any other mapping that covers the same identity in the same window is still a conflict, checked per identity. A mapping does not rewrite a usage record whose `occurred_at` is already stored. Re-attribution of stored usage is the consumer's job.
+
+### OTLP attribute reservations
 
 | OASA wire field | Reserved OTLP attribute |
 | --- | --- |
@@ -355,7 +411,7 @@ Token and cost groups remain permitted (not required) on `capacity` records.
 | `hosting` | `oasa.infrastructure.hosting` |
 | `interval_seconds` | `oasa.infrastructure.interval_seconds` |
 
-These reservations are draft until OASA 0.2.0 is published. They MUST NOT collide with OpenTelemetry GenAI semantic conventions.
+These names MUST NOT collide with OpenTelemetry GenAI semantic conventions. `gpu_busy_seconds` and `energy_wh` were added from the capacity-metric ruling in [spec pull request 4](https://github.com/onaro-io/agent-spend-attribution/pull/4).
 
 ---
 
@@ -397,7 +453,13 @@ A published `$id` never changes, and the document at that identifier never chang
 
 Decimal fields, including every money field, are JSON numbers. Consumers SHOULD parse them with decimal precision rather than binary floating point.
 
-The 0.2.0 draft (Group 10 and `capacity`) is not covered yet; it gets its own schema when 0.2.0 is published. The schema files, examples, and scripts are licensed Apache-2.0 (see [LICENSE-APACHE](LICENSE-APACHE)); the specification text remains CC BY 4.0.
+0.2.0 has its own schema, generated from the 0.1.3 tables plus the fields in Record schema v0.2.0:
+
+- [`schema/0.2.0/oasa-record.schema.json`](schema/0.2.0/oasa-record.schema.json): `$id` `https://oasaspec.org/schema/0.2.0/oasa-record.schema.json`.
+- [`schema/0.2.0/oasa-batch.schema.json`](schema/0.2.0/oasa-batch.schema.json): `$id` `https://oasaspec.org/schema/0.2.0/oasa-batch.schema.json`.
+- [`examples/0.2.0/`](examples/0.2.0/): conformance records for 0.2.0. Valid records pass the schema. Invalid records fail it, or fail a cross-record rule the schema cannot express.
+
+JSON Schema draft 2020-12 cannot compare two numeric properties, cannot require one object in an array to equal another field, and cannot compare windows across records. The 0.2.0 schema therefore enforces types, enums, presence, and absence. The conformance suite enforces `gpu_busy_seconds` ≤ `gpu_seconds`, one `identity_type` per array, `agent_owner` consistent with `owners`, the shorthand ref matching an entry, and `supersedes` resolution. The schema files, examples, and scripts are licensed Apache-2.0 (see [LICENSE-APACHE](LICENSE-APACHE)); the specification text remains CC BY 4.0.
 
 ### Batch envelope
 

@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17dc4-9e40-7f32-9196-41a3ce5c1339",
+  "occurred_at": "2026-10-27T14:30:00Z",
+  "recorded_at": "2026-10-27T14:30:00Z",
+  "source_system": "conformance",
+  "source_record_id": "usage/bedrock-only",
+  "currency": "USD",
+  "record_type": "usage",
+  "external_identities": [
+    {
+      "identity_type": "aws.bedrock.agent_id",
+      "identity_value": "bedrock-9"
+    }
+  ],
+  "provider": "aws.bedrock",
+  "model": "anthropic.claude",
+  "operation": "chat",
+  "input_tokens": 10,
+  "output_tokens": 4,
+  "request_count": 1
+}
