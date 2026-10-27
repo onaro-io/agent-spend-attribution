@@ -1,0 +1,1425 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://oasaspec.org/schema/0.2.0/oasa-record.schema.json",
+  "title": "OASA record (schema_version 0.2.0)",
+  "description": "One Open Agent Spend Attribution 0.2.0 record. Envelope fields are required. A record that uses only 0.1 fields stays on schema_version 0.1 and the 0.1.3 schema. Generated from SPEC.md by scripts/generate-schema.mjs; do not edit by hand.",
+  "type": "object",
+  "required": [
+    "record_id",
+    "record_type",
+    "schema_version",
+    "occurred_at",
+    "recorded_at",
+    "source_system",
+    "source_record_id",
+    "currency"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "record_id": {
+      "description": "Globally unique record identifier. Adapters with a stable source key SHOULD derive it deterministically (see Deterministic record IDs) so that a retried export produces the same ID.",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$",
+      "minLength": 1
+    },
+    "record_type": {
+      "description": "One row = one event class. mapping binds a native identifier to common attribution fields for a validity window. capacity is an endpoint-level observation.",
+      "type": "string",
+      "enum": [
+        "usage",
+        "charge",
+        "settlement",
+        "allocation",
+        "outcome",
+        "mapping",
+        "capacity"
+      ]
+    },
+    "schema_version": {
+      "description": "Schema version string; \"0.2\" or \"0.2.0\" when the record uses a 0.2 feature.",
+      "type": "string",
+      "pattern": "^0\\.2(\\.0)?$",
+      "minLength": 1
+    },
+    "occurred_at": {
+      "description": "When the event happened.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$",
+      "minLength": 1
+    },
+    "recorded_at": {
+      "description": "When the record was ingested.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$",
+      "minLength": 1
+    },
+    "source_system": {
+      "description": "e.g. otel-collector, openai-billing, x402-facilitator.",
+      "type": "string",
+      "minLength": 1
+    },
+    "source_record_id": {
+      "description": "Key in the source system.",
+      "type": "string",
+      "minLength": 1
+    },
+    "currency": {
+      "description": "ISO 4217, or CAIP-19 asset ID for on-chain assets. On a 0.2 record, an ISO 4217 code or a CAIP-19 asset id.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?:[A-Z]{3}|[a-z0-9]{3,8}:[-a-zA-Z0-9]{1,64}/[-a-z0-9]{3,8}:[-.%a-zA-Z0-9]{1,128})$"
+    },
+    "agent_id": {
+      "description": "Stable internal agent ID.",
+      "type": "string"
+    },
+    "agent_name": {
+      "description": "Human-readable agent name.",
+      "type": "string"
+    },
+    "agent_version": {
+      "description": "Agent build or prompt version.",
+      "type": "string"
+    },
+    "agent_owner": {
+      "description": "Team or principal accountable.",
+      "type": "string"
+    },
+    "parent_agent_id": {
+      "description": "Parent in a sub-agent chain.",
+      "type": "string"
+    },
+    "agent_framework": {
+      "description": "e.g. langgraph, crewai, custom.",
+      "type": "string"
+    },
+    "identity_scheme": {
+      "description": "How external identity is named.",
+      "type": "string",
+      "enum": [
+        "internal",
+        "erc8004",
+        "other"
+      ]
+    },
+    "external_identity_ref": {
+      "description": "e.g. ERC-8004 registration reference.",
+      "type": "string"
+    },
+    "session_id": {
+      "description": "Runtime session identifier.",
+      "type": "string"
+    },
+    "trace_id": {
+      "description": "W3C Trace Context / OpenTelemetry trace id.",
+      "type": "string"
+    },
+    "span_id": {
+      "description": "Span id within the trace.",
+      "type": "string"
+    },
+    "task_id": {
+      "description": "Org-defined task identifier.",
+      "type": "string"
+    },
+    "task_type": {
+      "description": "Free taxonomy; org-defined.",
+      "type": "string"
+    },
+    "workflow_id": {
+      "description": "Workflow or pipeline id.",
+      "type": "string"
+    },
+    "trigger": {
+      "description": "What started the run.",
+      "type": "string",
+      "enum": [
+        "human",
+        "scheduled",
+        "agent",
+        "event"
+      ]
+    },
+    "initiating_principal": {
+      "description": "Human or agent that authorized the run.",
+      "type": "string"
+    },
+    "provider": {
+      "description": "Model or API provider.",
+      "type": "string"
+    },
+    "service": {
+      "description": "Service product name.",
+      "type": "string"
+    },
+    "model": {
+      "description": "Model identifier.",
+      "type": "string"
+    },
+    "operation": {
+      "description": "Operation class.",
+      "type": "string",
+      "enum": [
+        "chat",
+        "completion",
+        "embeddings",
+        "tool_call",
+        "inference",
+        "storage",
+        "api_call",
+        "other"
+      ]
+    },
+    "input_tokens": {
+      "description": "Input token count.",
+      "type": "integer"
+    },
+    "output_tokens": {
+      "description": "Output token count.",
+      "type": "integer"
+    },
+    "cached_tokens": {
+      "description": "Cached / reused tokens when reported.",
+      "type": "integer"
+    },
+    "reasoning_tokens": {
+      "description": "Reasoning tokens when reported.",
+      "type": "integer"
+    },
+    "unit_type": {
+      "description": "Unit of consumption.",
+      "type": "string",
+      "enum": [
+        "tokens",
+        "requests",
+        "seconds",
+        "gb",
+        "custom"
+      ]
+    },
+    "units_consumed": {
+      "description": "Quantity in unit_type. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "tool_name": {
+      "description": "Tool invoked, if any.",
+      "type": "string"
+    },
+    "request_count": {
+      "description": "Request count for the event.",
+      "type": "integer"
+    },
+    "list_cost": {
+      "description": "List price; mirrors FOCUS ListCost semantics. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "billed_cost": {
+      "description": "Billed amount; mirrors FOCUS BilledCost. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "effective_cost": {
+      "description": "Effective cost after discounts; mirrors FOCUS EffectiveCost. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "cost_source": {
+      "description": "How cost was derived. allocated means the cost was assigned from a shared cost by an allocation rule rather than metered, rated, or invoiced for this record.",
+      "type": "string",
+      "enum": [
+        "measured",
+        "rated",
+        "invoiced",
+        "allocated"
+      ]
+    },
+    "pricing_ref": {
+      "description": "Price-sheet row ID.",
+      "type": "string"
+    },
+    "invoice_id": {
+      "description": "Vendor invoice identifier.",
+      "type": "string"
+    },
+    "focus_charge_ref": {
+      "description": "Pointer into a FOCUS dataset row.",
+      "type": "string"
+    },
+    "cost_center": {
+      "description": "Cost center or department.",
+      "type": "string"
+    },
+    "project_id": {
+      "description": "Project identifier.",
+      "type": "string"
+    },
+    "customer_id": {
+      "description": "Customer or account identifier.",
+      "type": "string"
+    },
+    "product_line": {
+      "description": "Product line.",
+      "type": "string"
+    },
+    "environment": {
+      "description": "Runtime environment.",
+      "type": "string",
+      "enum": [
+        "prod",
+        "staging",
+        "dev",
+        "other"
+      ]
+    },
+    "tags": {
+      "description": "Free-form tags.",
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "allocation_method": {
+      "description": "How cost was allocated.",
+      "type": "string",
+      "enum": [
+        "direct",
+        "rule",
+        "split"
+      ]
+    },
+    "allocation_rule_id": {
+      "description": "Rule that produced the allocation.",
+      "type": "string"
+    },
+    "split_fraction": {
+      "description": "Share of a split allocation. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number",
+      "minimum": 0,
+      "maximum": 1
+    },
+    "attribution": {
+      "description": "Per-field provenance for agent_id, agent_owner, cost_center, and project_id. Present only alongside at least one of those fields. Each entry has method, source_system, identity_type, and identity_value. See Attribution.",
+      "type": "object",
+      "additionalProperties": false,
+      "minProperties": 1,
+      "properties": {
+        "agent_id": {
+          "$ref": "#/$defs/attributionEntry"
+        },
+        "agent_owner": {
+          "$ref": "#/$defs/attributionEntry"
+        },
+        "cost_center": {
+          "$ref": "#/$defs/attributionEntry"
+        },
+        "project_id": {
+          "$ref": "#/$defs/attributionEntry"
+        }
+      }
+    },
+    "attribution_unattributed_reason": {
+      "description": "Why none of the four common attribution fields is set. MUST be absent when any of them is set. A producer that attributes a record and sets none of the four MUST set this. A record MAY omit it.",
+      "type": "string",
+      "enum": [
+        "no_identity",
+        "identity_not_mapped",
+        "tag_missing",
+        "seat_without_owner",
+        "not_on_bill",
+        "mapping_conflict"
+      ]
+    },
+    "attribution_identity_type": {
+      "description": "On a mapping record, the native identifier name. MUST be absent on every other record type.",
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)*$"
+    },
+    "attribution_identity_value": {
+      "description": "On a mapping record, the native identifier value. MUST be absent on every other record type.",
+      "type": "string",
+      "minLength": 1
+    },
+    "valid_from": {
+      "description": "On a mapping record, inclusive start of the window. MUST be absent on every other record type.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$"
+    },
+    "valid_to": {
+      "description": "On a mapping record, exclusive end of the window. Absent means still in force. MUST be absent on every other record type.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$"
+    },
+    "settlement_rail": {
+      "description": "How money moved.",
+      "type": "string",
+      "enum": [
+        "invoice",
+        "card",
+        "ach",
+        "wire",
+        "x402",
+        "other_onchain"
+      ]
+    },
+    "settlement_network": {
+      "description": "CAIP-2 chain ID where applicable.",
+      "type": "string"
+    },
+    "settlement_asset": {
+      "description": "CAIP-19 asset identifier.",
+      "type": "string"
+    },
+    "settlement_amount": {
+      "description": "Settled amount. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "settlement_ref": {
+      "description": "Tx hash, statement line, or remittance ID.",
+      "type": "string"
+    },
+    "settled_at": {
+      "description": "Settlement timestamp.",
+      "type": "string",
+      "format": "date-time",
+      "pattern": "(Z|[+-]00:00)$"
+    },
+    "reconciliation_status": {
+      "description": "Join status against billing/telemetry.",
+      "type": "string",
+      "enum": [
+        "unmatched",
+        "matched",
+        "partial",
+        "disputed"
+      ]
+    },
+    "budget_id": {
+      "description": "Budget that constrained or funded the spend.",
+      "type": "string"
+    },
+    "policy_id": {
+      "description": "Policy identifier.",
+      "type": "string"
+    },
+    "authorization_ref": {
+      "description": "Mandate / verifiable-intent credential ID.",
+      "type": "string"
+    },
+    "approval_type": {
+      "description": "How spend was authorized.",
+      "type": "string",
+      "enum": [
+        "policy_auto",
+        "pre_authorized",
+        "human_approved"
+      ]
+    },
+    "outcome_event_id": {
+      "description": "Linked outcome event.",
+      "type": "string"
+    },
+    "outcome_type": {
+      "description": "Outcome class (org-defined).",
+      "type": "string"
+    },
+    "outcome_value": {
+      "description": "Numeric outcome value. Decimal value encoded as a JSON number; parse with decimal precision, not binary floating point.",
+      "type": "number"
+    },
+    "outcome_unit": {
+      "description": "Unit for outcome_value.",
+      "type": "string"
+    },
+    "business_metric_ref": {
+      "description": "Pointer to a business metric definition.",
+      "type": "string"
+    },
+    "external_identities": {
+      "description": "Additional native identities. Each entry is identity_type and identity_value. The same identity_type MUST NOT appear twice.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "identity_type",
+          "identity_value"
+        ],
+        "properties": {
+          "identity_type": {
+            "type": "string",
+            "minLength": 1,
+            "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)*$",
+            "description": "Native identifier name. Lowercase dotted segments, each starting with a letter."
+          },
+          "identity_value": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Native identifier value."
+          }
+        }
+      }
+    },
+    "owners": {
+      "description": "Accountable parties. Each entry is principal and an optional role.",
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "principal"
+        ],
+        "properties": {
+          "principal": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Accountable party."
+          },
+          "role": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Optional role. Examples: owner, sponsor, technical_contact."
+          }
+        }
+      }
+    },
+    "supersedes": {
+      "description": "On a mapping record, the record_id of the mapping this record replaces. MUST be absent on every other record type.",
+      "type": "string",
+      "pattern": "^[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-7[0-9a-fA-F]{3}-[89abAB][0-9a-fA-F]{3}-[0-9a-fA-F]{12}$"
+    },
+    "pool_id": {
+      "description": "Customer-defined cost pool / cluster identity. Opaque to the spec; org-scoped at the receiver.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "endpoint_id": {
+      "description": "Serving endpoint identity (e.g. deployment / NAI endpoint name). Opaque.",
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 128
+    },
+    "gpu_seconds": {
+      "description": "GPU time consumed over the record's interval. Endpoint grain only — not per-request.",
+      "type": "number",
+      "minimum": 0
+    },
+    "gpu_busy_seconds": {
+      "description": "Portion of gpu_seconds during which the GPUs were busy. MUST be ≤ gpu_seconds.",
+      "type": "number",
+      "minimum": 0
+    },
+    "energy_wh": {
+      "description": "Energy consumed by the endpoint over the record's interval, in watt-hours.",
+      "type": "number",
+      "minimum": 0
+    },
+    "hosting": {
+      "description": "Signals that a vendor public price list may not apply.",
+      "type": "string",
+      "enum": [
+        "provider_api",
+        "self_hosted",
+        "dedicated_capacity"
+      ]
+    },
+    "interval_seconds": {
+      "description": "Observation window length. occurred_at is the interval **end**. Added because usage has no interval/window fields.",
+      "type": "number",
+      "exclusiveMinimum": 0
+    }
+  },
+  "$defs": {
+    "attributionEntry": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "method",
+        "source_system",
+        "identity_type",
+        "identity_value"
+      ],
+      "properties": {
+        "method": {
+          "type": "string",
+          "enum": [
+            "declared",
+            "manual",
+            "mapped",
+            "inherited",
+            "rule"
+          ],
+          "description": "How this field was set. declared, manual, mapped, inherited, or rule."
+        },
+        "source_system": {
+          "type": "string",
+          "minLength": 1,
+          "description": "System that minted the native identity for this field."
+        },
+        "identity_type": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[a-z][a-z0-9_]*(?:\\.[a-z][a-z0-9_]*)*$",
+          "description": "Native identifier name. Lowercase dotted segments, each starting with a letter."
+        },
+        "identity_value": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Native identifier value. For a convention tag or label, this is the tag key."
+        }
+      }
+    }
+  },
+  "allOf": [
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "record_type"
+        ],
+        "properties": {
+          "record_type": {
+            "const": "mapping"
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "attribution"
+              ],
+              "properties": {
+                "attribution": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "attribution_unattributed_reason"
+              ],
+              "properties": {
+                "attribution_unattributed_reason": {}
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "record_type"
+        ],
+        "properties": {
+          "record_type": {
+            "not": {
+              "const": "mapping"
+            }
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "attribution_identity_type"
+              ],
+              "properties": {
+                "attribution_identity_type": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "attribution_identity_value"
+              ],
+              "properties": {
+                "attribution_identity_value": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "valid_from"
+              ],
+              "properties": {
+                "valid_from": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "valid_to"
+              ],
+              "properties": {
+                "valid_to": {}
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "anyOf": [
+          {
+            "type": "object",
+            "required": [
+              "agent_id"
+            ],
+            "properties": {
+              "agent_id": {}
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "agent_owner"
+            ],
+            "properties": {
+              "agent_owner": {}
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "cost_center"
+            ],
+            "properties": {
+              "cost_center": {}
+            }
+          },
+          {
+            "type": "object",
+            "required": [
+              "project_id"
+            ],
+            "properties": {
+              "project_id": {}
+            }
+          }
+        ]
+      },
+      "then": {
+        "not": {
+          "type": "object",
+          "required": [
+            "attribution_unattributed_reason"
+          ],
+          "properties": {
+            "attribution_unattributed_reason": {}
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "agent_id"
+            ],
+            "properties": {
+              "agent_id": {}
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "agent_id"
+        ],
+        "properties": {
+          "agent_id": {}
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution",
+          "agent_id"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object"
+          },
+          "agent_id": {}
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "agent_id"
+            ],
+            "properties": {
+              "agent_id": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "agent_owner"
+            ],
+            "properties": {
+              "agent_owner": {}
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "agent_owner"
+        ],
+        "properties": {
+          "agent_owner": {}
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution",
+          "agent_owner"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object"
+          },
+          "agent_owner": {}
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "agent_owner"
+            ],
+            "properties": {
+              "agent_owner": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "cost_center"
+            ],
+            "properties": {
+              "cost_center": {}
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "cost_center"
+        ],
+        "properties": {
+          "cost_center": {}
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution",
+          "cost_center"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object"
+          },
+          "cost_center": {}
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "cost_center"
+            ],
+            "properties": {
+              "cost_center": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "project_id"
+            ],
+            "properties": {
+              "project_id": {}
+            }
+          }
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "project_id"
+        ],
+        "properties": {
+          "project_id": {}
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "attribution",
+          "project_id"
+        ],
+        "properties": {
+          "attribution": {
+            "type": "object"
+          },
+          "project_id": {}
+        }
+      },
+      "then": {
+        "type": "object",
+        "properties": {
+          "attribution": {
+            "type": "object",
+            "required": [
+              "project_id"
+            ],
+            "properties": {
+              "project_id": {}
+            }
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "record_type"
+        ],
+        "properties": {
+          "record_type": {
+            "const": "capacity"
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "type": "object",
+            "required": [
+              "pool_id",
+              "endpoint_id",
+              "gpu_seconds"
+            ],
+            "properties": {
+              "pool_id": {},
+              "endpoint_id": {},
+              "gpu_seconds": {}
+            }
+          },
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "agent_id"
+                  ],
+                  "properties": {
+                    "agent_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "agent_name"
+                  ],
+                  "properties": {
+                    "agent_name": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "agent_version"
+                  ],
+                  "properties": {
+                    "agent_version": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "agent_owner"
+                  ],
+                  "properties": {
+                    "agent_owner": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "parent_agent_id"
+                  ],
+                  "properties": {
+                    "parent_agent_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "agent_framework"
+                  ],
+                  "properties": {
+                    "agent_framework": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "identity_scheme"
+                  ],
+                  "properties": {
+                    "identity_scheme": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "external_identity_ref"
+                  ],
+                  "properties": {
+                    "external_identity_ref": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "external_identities"
+                  ],
+                  "properties": {
+                    "external_identities": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "owners"
+                  ],
+                  "properties": {
+                    "owners": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "session_id"
+                  ],
+                  "properties": {
+                    "session_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "trace_id"
+                  ],
+                  "properties": {
+                    "trace_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "span_id"
+                  ],
+                  "properties": {
+                    "span_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "task_id"
+                  ],
+                  "properties": {
+                    "task_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "task_type"
+                  ],
+                  "properties": {
+                    "task_type": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "workflow_id"
+                  ],
+                  "properties": {
+                    "workflow_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "trigger"
+                  ],
+                  "properties": {
+                    "trigger": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "initiating_principal"
+                  ],
+                  "properties": {
+                    "initiating_principal": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "supersedes"
+                  ],
+                  "properties": {
+                    "supersedes": {}
+                  }
+                }
+              ]
+            }
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "record_type"
+        ],
+        "properties": {
+          "record_type": {
+            "not": {
+              "const": "capacity"
+            }
+          }
+        }
+      },
+      "then": {
+        "not": {
+          "anyOf": [
+            {
+              "type": "object",
+              "required": [
+                "gpu_seconds"
+              ],
+              "properties": {
+                "gpu_seconds": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "gpu_busy_seconds"
+              ],
+              "properties": {
+                "gpu_busy_seconds": {}
+              }
+            },
+            {
+              "type": "object",
+              "required": [
+                "energy_wh"
+              ],
+              "properties": {
+                "energy_wh": {}
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "record_type"
+        ],
+        "properties": {
+          "record_type": {
+            "const": "mapping"
+          }
+        }
+      },
+      "then": {
+        "allOf": [
+          {
+            "not": {
+              "anyOf": [
+                {
+                  "type": "object",
+                  "required": [
+                    "list_cost"
+                  ],
+                  "properties": {
+                    "list_cost": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "billed_cost"
+                  ],
+                  "properties": {
+                    "billed_cost": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "effective_cost"
+                  ],
+                  "properties": {
+                    "effective_cost": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "cost_source"
+                  ],
+                  "properties": {
+                    "cost_source": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "pricing_ref"
+                  ],
+                  "properties": {
+                    "pricing_ref": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "invoice_id"
+                  ],
+                  "properties": {
+                    "invoice_id": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "focus_charge_ref"
+                  ],
+                  "properties": {
+                    "focus_charge_ref": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "input_tokens"
+                  ],
+                  "properties": {
+                    "input_tokens": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "output_tokens"
+                  ],
+                  "properties": {
+                    "output_tokens": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "cached_tokens"
+                  ],
+                  "properties": {
+                    "cached_tokens": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "reasoning_tokens"
+                  ],
+                  "properties": {
+                    "reasoning_tokens": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "units_consumed"
+                  ],
+                  "properties": {
+                    "units_consumed": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "request_count"
+                  ],
+                  "properties": {
+                    "request_count": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "gpu_seconds"
+                  ],
+                  "properties": {
+                    "gpu_seconds": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "gpu_busy_seconds"
+                  ],
+                  "properties": {
+                    "gpu_busy_seconds": {}
+                  }
+                },
+                {
+                  "type": "object",
+                  "required": [
+                    "energy_wh"
+                  ],
+                  "properties": {
+                    "energy_wh": {}
+                  }
+                }
+              ]
+            }
+          },
+          {
+            "anyOf": [
+              {
+                "type": "object",
+                "required": [
+                  "attribution_identity_type",
+                  "attribution_identity_value"
+                ],
+                "properties": {
+                  "attribution_identity_type": {},
+                  "attribution_identity_value": {}
+                }
+              },
+              {
+                "type": "object",
+                "required": [
+                  "external_identities"
+                ],
+                "properties": {
+                  "external_identities": {}
+                }
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "if": {
+        "type": "object",
+        "required": [
+          "supersedes"
+        ],
+        "properties": {
+          "supersedes": {}
+        }
+      },
+      "then": {
+        "type": "object",
+        "required": [
+          "record_type",
+          "valid_from"
+        ],
+        "properties": {
+          "record_type": {
+            "const": "mapping"
+          },
+          "valid_from": {}
+        }
+      }
+    }
+  ]
+}

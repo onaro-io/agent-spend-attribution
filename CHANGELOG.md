@@ -4,18 +4,28 @@ All notable changes to the Open Agent Spend Attribution (OASA) Specification.
 
 The specification is additive-only within a major version: fields are added, never renamed or removed, until a major version increment. `schema_version` inside a record changes only when the record format itself changes — a documentation or mapping revision does not move it.
 
-## [v0.2.0] — 2026-09-22 (draft branch — unpublished)
+## [v0.2.0] — 2026-10-27
+
+Publishes the infrastructure draft from 2026-09-22 and the capacity metrics from [pull request 4](https://github.com/onaro-io/agent-spend-attribution/pull/4). Adds multiple external identities, owners, and a way to close an open mapping. `schema_version` is `"0.2"` or `"0.2.0"` on a record that uses any of this. 0.1.x records stay valid under the unchanged 0.1.3 schema.
 
 ### Added
 - Group 10 — Infrastructure: `pool_id`, `endpoint_id`, `gpu_seconds`, `hosting`, `interval_seconds`.
-- Group 10 capacity metrics `gpu_busy_seconds` (≤ `gpu_seconds`) and `energy_wh`, both capacity-only, with matching `oasa.infrastructure.*` reservations.
-- `record_type` value `capacity` (endpoint-level observation; forbids agent/session fields; requires pool, endpoint, gpu_seconds).
-- Draft OTLP attribute reservations `oasa.infrastructure.*` mapping onto the flat wire names.
-- `schema_version` `"0.2"` / `"0.2.0"` as the gate for the above. v0.1.x text unchanged.
+- `gpu_busy_seconds` (≤ `gpu_seconds`) and `energy_wh`, both capacity-only, with `oasa.infrastructure.*` names. From pull request 4.
+- `record_type` value `capacity`. Requires `pool_id`, `endpoint_id`, and `gpu_seconds`. Agent and session fields are absent.
+- `gpu_seconds` is forbidden on every non-`capacity` record type.
+- `external_identities`, an array of `{identity_type, identity_value}`. The same `identity_type` appears once. `external_identity_ref` and `identity_scheme` stay the single-identity shorthand.
+- `owners`, an array of `{principal, role}`. `role` is optional. `agent_owner` stays the single accountable principal and MUST match the owner entry when both are set.
+- `agent_name` and `owners` are allowed on `mapping` records.
+- Each `external_identities` entry on a mapping is bound independently. Conflicts are checked per identity.
+- `supersedes`, the `record_id` of a prior mapping. That prior window ends at the new record's `valid_from`, and the pair is not an overlap. 0.1.3 had no way to end a mapping whose `valid_to` was absent, because records are immutable and deduplicated by `record_id`.
+- JSON Schema `$id` `https://oasaspec.org/schema/0.2.0/oasa-record.schema.json` and `https://oasaspec.org/schema/0.2.0/oasa-batch.schema.json`.
+- Conformance fixtures under `examples/0.2.0/`, including a deterministic UUIDv7, a mapping with two identities, and an owner change through `supersedes`.
+
+### Unchanged
+- No 0.1 field is renamed or removed. The 0.1.2 schema `$id` and the 0.1.3 schema `$id` still serve the documents published with those versions.
+- `cost_source` value `allocated`, CAIP-19 currency, and hyphenated UUIDv7 `record_id` were already specified. Pull request 4 recorded them. `organization_id` and `org_id` stay out of the spec.
 
 ### Notes
-- `gpu_seconds` is forbidden on `usage` (per-request GPU attribution out of scope).
-- Publication of 0.2.0 (merge, HTML pin, announcement) is a separate decision.
 - Consider a dedicated correction field instead of `tags.adjustment`. The 0.1.3 Attribution section names that tag on a correcting charge. `tags` is a free-form map and does not define the key.
 
 ## Unreleased — editorial
@@ -101,7 +111,7 @@ Initial public draft.
 - Worked example across usage, charge, and settlement records.
 - Published under CC BY 4.0.
 
-[v0.2.0]: https://www.onaro.io/spec (draft — not published)
+[v0.2.0]: https://oasaspec.org/spec/v0.2.0
 [v0.1.3]: https://oasaspec.org/spec/v0.1.3
 [v0.1.2]: https://oasaspec.org/spec/v0.1.2
 [v0.1.1]: https://oasaspec.org/spec/v0.1.1

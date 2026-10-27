@@ -201,6 +201,249 @@ for (const [label, mutate] of mustReject) {
   else console.log(`ok   rejects ${label}`);
 }
 
+function runV02() {
+  const dir = join(ROOT, 'examples', '0.2.0');
+  const recordSchema02 = readJson(join(ROOT, 'schema', '0.2.0', 'oasa-record.schema.json'));
+  const batchSchema02 = readJson(join(ROOT, 'schema', '0.2.0', 'oasa-batch.schema.json'));
+  if (recordSchema02.$id !== 'https://oasaspec.org/schema/0.2.0/oasa-record.schema.json') {
+    fail(`0.2.0 record schema $id is ${recordSchema02.$id}`);
+  }
+  if (batchSchema02.$id !== 'https://oasaspec.org/schema/0.2.0/oasa-batch.schema.json') {
+    fail(`0.2.0 batch schema $id is ${batchSchema02.$id}`);
+  }
+  const ajv02 = new Ajv2020({ allErrors: true, strict: true });
+  addFormats(ajv02);
+  ajv02.addSchema(recordSchema02);
+  const validate02 = ajv02.getSchema(recordSchema02.$id);
+  const validateBatch02 = ajv02.compile(batchSchema02);
+
+  const readDir = (name) => {
+    const folder = join(dir, name);
+    return readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => ({
+      file: `examples/0.2.0/${name}/${f}`,
+      record: readJson(join(folder, f)),
+    }));
+  };
+
+  const valid = readDir('valid');
+  const invalid = readDir('invalid');
+  const semantic = readDir('semantic');
+  for (const { file, record } of valid) {
+    if (!validate02(record)) {
+      fail(`${file}: ${describe(validate02.errors)}`);
+      continue;
+    }
+    const expectedId = deterministicRecordId(record.occurred_at, record.source_record_id);
+    if (record.record_id !== expectedId) {
+      fail(`${file}: record_id ${record.record_id} is not the deterministic ID ${expectedId}`);
+      continue;
+    }
+    const issues = singleRecordIssues(record);
+    if (issues.length) {
+      fail(`${file}: ${issues.join(', ')}`);
+      continue;
+    }
+    console.log(`ok   ${file}`);
+  }
+  if (!valid.some((item) => item.record.record_id === '01a05d7f-b288-7532-8207-8cb53896d9e1')) {
+    fail('0.2.0 fixtures are missing the deterministic record id test vector');
+  }
+
+  for (const { file, record } of invalid) {
+    if (validate02(record)) fail(`${file}: schema accepted an invalid record`);
+    else console.log(`ok   rejects ${file}`);
+  }
+
+  for (const { file, record } of semantic) {
+    if (!validate02(record)) {
+      fail(`${file}: schema rejected a semantic fixture: ${describe(validate02.errors)}`);
+      continue;
+    }
+    const issues = singleRecordIssues(record);
+    if (issues.length === 0) fail(`${file}: semantic fixture has no cross-field issue`);
+    else console.log(`ok   semantic ${file}: ${issues.join(', ')}`);
+  }
+
+  const resolveRoot = join(dir, 'resolve');
+  for (const name of readdirSync(resolveRoot).sort()) {
+    const folder = join(resolveRoot, name);
+    const group = readdirSync(folder).filter((f) => f.endsWith('.json')).sort().map((f) => readJson(join(folder, f)));
+    for (const record of group) {
+      if (!validate02(record)) {
+        fail(`examples/0.2.0/resolve/${name}: ${describe(validate02.errors)}`);
+      }
+      const issues = singleRecordIssues(record);
+      if (issues.length) fail(`examples/0.2.0/resolve/${name}: ${issues.join(', ')}`);
+    }
+    checkResolve(name, group);
+  }
+
+  const batch = {
+    schema_version: '0.2.0',
+    source_system: 'examples',
+    emitted_at: '2026-10-27T20:00:00Z',
+    count: valid.length,
+    records: valid.map((item) => item.record),
+  };
+  if (!validateBatch02(batch)) fail(`0.2.0 batch: ${describe(validateBatch02.errors)}`);
+  else console.log(`ok   0.2.0 batch of ${valid.length} valid records`);
+}
+
+function singleRecordIssues(record) {
+  const issues = [];
+  const identities = record.external_identities;
+  if (Array.isArray(identities)) {
+    const seen = new Set();
+    for (const entry of identities) {
+      if (seen.has(entry.identity_type)) issues.push(`duplicate identity_type ${entry.identity_type}`);
+      seen.add(entry.identity_type);
+    }
+    if (record.external_identity_ref && !identities.some((entry) => entry.identity_value === record.external_identity_ref)) {
+      issues.push('shorthand ref is not an identity_value');
+    }
+    if (record.attribution_identity_type && !identities.some((entry) =>
+      entry.identity_type === record.attribution_identity_type &&
+      entry.identity_value === record.attribution_identity_value)) {
+      issues.push('attribution pair is not an external_identities entry');
+    }
+  }
+  if (record.gpu_busy_seconds !== undefined && record.gpu_seconds !== undefined && record.gpu_busy_seconds > record.gpu_seconds) {
+    issues.push('gpu_busy_seconds exceeds gpu_seconds');
+  }
+  if (Array.isArray(record.owners)) {
+    const named = record.owners.filter((entry) => entry.role === 'owner');
+    if (named.length > 1) issues.push('more than one owner role');
+    let owner = named.length === 1 ? named[0].principal : undefined;
+    if (named.length === 0 && record.owners.length === 1 && record.owners[0].role === undefined) {
+      owner = record.owners[0].principal;
+    }
+    if (record.agent_owner !== undefined && owner !== undefined && record.agent_owner !== owner) {
+      issues.push('agent_owner does not match owners');
+    }
+    if (record.agent_owner !== undefined && owner === undefined) issues.push('agent_owner does not match owners');
+  }
+  return issues;
+}
+
+function bindingKeys(record) {
+  if (Array.isArray(record.external_identities) && record.external_identities.length) {
+    return record.external_identities.map((entry) => `${entry.identity_type}\0${entry.identity_value}`);
+  }
+  if (record.attribution_identity_type && record.attribution_identity_value) {
+    return [`${record.attribution_identity_type}\0${record.attribution_identity_value}`];
+  }
+  return [];
+}
+
+function windowEnd(record, mappings) {
+  let end = record.valid_to ? Date.parse(record.valid_to) : Infinity;
+  for (const other of mappings) {
+    if (other.supersedes === record.record_id && other.valid_from) {
+      const cut = Date.parse(other.valid_from);
+      if (cut < end) end = cut;
+    }
+  }
+  return end;
+}
+
+function windowsOverlap(a, b, mappings) {
+  if (a.supersedes === b.record_id || b.supersedes === a.record_id) return false;
+  const aStart = Date.parse(a.valid_from);
+  const bStart = Date.parse(b.valid_from);
+  return aStart < windowEnd(b, mappings) && bStart < windowEnd(a, mappings);
+}
+
+function conflictsFor(mappings) {
+  const byIdentity = new Map();
+  for (const record of mappings) {
+    for (const key of bindingKeys(record)) {
+      if (!byIdentity.has(key)) byIdentity.set(key, []);
+      byIdentity.get(key).push(record);
+    }
+  }
+  const conflicted = new Map();
+  for (const [key, list] of byIdentity) {
+    for (let i = 0; i < list.length; i++) {
+      for (let j = i + 1; j < list.length; j++) {
+        if (!windowsOverlap(list[i], list[j], mappings)) continue;
+        for (const record of [list[i], list[j]]) {
+          if (!conflicted.has(record.record_id)) conflicted.set(record.record_id, new Set());
+          conflicted.get(record.record_id).add(key);
+        }
+      }
+    }
+  }
+  return conflicted;
+}
+
+function appliedMapping(mappings, key, at) {
+  const t = Date.parse(at);
+  const conflicted = conflictsFor(mappings);
+  return mappings.filter((record) => {
+    if (!bindingKeys(record).includes(key)) return false;
+    const blocked = conflicted.get(record.record_id);
+    if (blocked && blocked.has(key)) return false;
+    const start = Date.parse(record.valid_from);
+    return start <= t && t < windowEnd(record, mappings);
+  });
+}
+
+function checkResolve(name, group) {
+  const mappings = group.filter((record) => record.record_type === 'mapping');
+  const label = `examples/0.2.0/resolve/${name}`;
+  if (name === 'owner-change') {
+    const entra = 'entra.agent_id\0agent-1';
+    const conflicted = conflictsFor(mappings);
+    if ([...conflicted.values()].some((keys) => keys.has(entra))) {
+      fail(`${label}: owner change was treated as an overlap`);
+      return;
+    }
+    const before = group.find((record) => record.source_record_id === 'usage/before-owner');
+    const after = group.find((record) => record.source_record_id === 'usage/after-owner');
+    const beforeHits = appliedMapping(mappings, entra, before.occurred_at);
+    const afterHits = appliedMapping(mappings, entra, after.occurred_at);
+    if (beforeHits.length !== 1 || beforeHits[0].agent_owner !== 'alice') {
+      fail(`${label}: usage before valid_from did not stay with alice`);
+      return;
+    }
+    if (afterHits.length !== 1 || afterHits[0].agent_owner !== 'bob') {
+      fail(`${label}: usage on or after valid_from did not use bob`);
+      return;
+    }
+    console.log(`ok   ${label}: alice then bob, not a conflict`);
+    return;
+  }
+  if (name === 'partial-conflict') {
+    const entra = 'entra.agent_id\0agent-1';
+    const bedrock = 'aws.bedrock.agent_id\0bedrock-9';
+    const entraUsage = group.find((record) => record.source_record_id === 'usage/entra-only');
+    const bedrockUsage = group.find((record) => record.source_record_id === 'usage/bedrock-only');
+    const entraHits = appliedMapping(mappings, entra, entraUsage.occurred_at);
+    const bedrockHits = appliedMapping(mappings, bedrock, bedrockUsage.occurred_at);
+    if (entraHits.length !== 0) {
+      fail(`${label}: the overlapping identity still bound`);
+      return;
+    }
+    if (bedrockHits.length !== 1 || bedrockHits[0].source_record_id !== 'mapping/two-identities') {
+      fail(`${label}: the other identity did not stay bound`);
+      return;
+    }
+    console.log(`ok   ${label}: one identity conflicts, the other still binds`);
+    return;
+  }
+  if (name === 'plain-overlap') {
+    const entra = 'entra.agent_id\0agent-1';
+    const usage = group.find((record) => record.record_type === 'usage');
+    const hits = appliedMapping(mappings, entra, usage.occurred_at);
+    if (hits.length !== 0) fail(`${label}: overlapping mappings were applied`);
+    else console.log(`ok   ${label}: overlap applies neither mapping`);
+    return;
+  }
+  fail(`${label}: no resolution check for this directory`);
+}
+
+runV02();
+
 if (failures > 0) {
   console.error(`\n${failures} validation failure(s).`);
   process.exit(1);

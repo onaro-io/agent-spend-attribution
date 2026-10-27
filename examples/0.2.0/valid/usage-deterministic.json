@@ -1,0 +1,18 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a05d7f-b288-7532-8207-8cb53896d9e1",
+  "record_type": "usage",
+  "occurred_at": "2026-09-01T15:04:05Z",
+  "recorded_at": "2026-09-01T15:04:06Z",
+  "source_system": "otel-collector",
+  "source_record_id": "4bf92f3577b34da6a3ce929d0e0e4736/00f067aa0ba902b7",
+  "currency": "USD",
+  "agent_id": "agent-support-47",
+  "agent_name": "Support Triage",
+  "provider": "openai",
+  "model": "gpt-4.1",
+  "operation": "chat",
+  "input_tokens": 1200,
+  "output_tokens": 340,
+  "request_count": 1
+}

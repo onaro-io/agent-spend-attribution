@@ -1,0 +1,23 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17d3b-4a00-738f-87c6-36d0e4bc8fdc",
+  "occurred_at": "2026-10-27T12:00:00Z",
+  "recorded_at": "2026-10-27T12:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "mapping/two-identities",
+  "currency": "USD",
+  "record_type": "mapping",
+  "external_identities": [
+    {
+      "identity_type": "entra.agent_id",
+      "identity_value": "agent-1"
+    },
+    {
+      "identity_type": "aws.bedrock.agent_id",
+      "identity_value": "bedrock-9"
+    }
+  ],
+  "valid_from": "2026-10-01T00:00:00Z",
+  "agent_id": "support-triage",
+  "agent_owner": "alice"
+}

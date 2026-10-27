@@ -1,0 +1,15 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17d72-3880-744c-a90f-4351788fea70",
+  "occurred_at": "2026-10-27T13:00:00Z",
+  "recorded_at": "2026-10-27T13:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "mapping/overlap-entra",
+  "currency": "USD",
+  "record_type": "mapping",
+  "attribution_identity_type": "entra.agent_id",
+  "attribution_identity_value": "agent-1",
+  "valid_from": "2026-10-27T13:00:00Z",
+  "agent_id": "other-agent",
+  "agent_owner": "dave"
+}

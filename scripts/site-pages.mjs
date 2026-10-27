@@ -16,12 +16,19 @@ const REPO = 'https://github.com/onaro-io/agent-spend-attribution';
 
 export const ROOT_REDIRECT_URL = '';
 
-const CURRENT_VERSION = { version: '0.1.3', date: '2026-10-22', pathname: '/spec/v0.1.3/' };
+const CURRENT_VERSION = { version: '0.2.0', date: '2026-10-27', pathname: '/spec/v0.2.0/' };
 
-// v0.1.3 is the only tag. Earlier pins are the commits of those published texts.
-// v0.1.2 is the last main commit on 2026-10-08. v0.1.1 is SPEC.md as added on
-// 2026-09-15. No commit and no tag contain version 0.1.
+// Pinned pages are the git tag for that version. v0.1.3 is the published text
+// before 0.2.0. v0.1.2 is the last main commit on 2026-10-08. v0.1.1 is SPEC.md
+// as added on 2026-09-15.
 export const HISTORICAL_VERSIONS = [
+  {
+    version: '0.1.3',
+    date: '2026-10-22',
+    pathname: '/spec/v0.1.3/',
+    tag: 'v0.1.3',
+    rev: 'f58e3644956e526b0cfc3586358eb7c3a157e314',
+  },
   {
     version: '0.1.2',
     date: '2026-10-08',
@@ -50,11 +57,13 @@ const PAGES = [
   },
   {
     source: 'SPEC.md',
-    pathname: '/spec/v0.1.3/',
+    pathname: '/spec/v0.2.0/',
     nav: 'spec',
-    title: 'Open Agent Spend Attribution (OASA) Specification 0.1.3',
+    title: 'Open Agent Spend Attribution (OASA) Specification 0.2.0',
     spec: true,
     pinned: true,
+    version: '0.2.0',
+    date: '2026-10-27',
   },
   {
     source: 'docs/guides/attribution-best-practices.md',
@@ -89,6 +98,8 @@ const PUBLISHED = new Map([
   ['schema/oasa-batch.schema.json', '/schema/0.1/oasa-batch.schema.json'],
   ['schema/0.1.3/oasa-record.schema.json', '/schema/0.1.3/oasa-record.schema.json'],
   ['schema/0.1.3/oasa-batch.schema.json', '/schema/0.1.3/oasa-batch.schema.json'],
+  ['schema/0.2.0/oasa-record.schema.json', '/schema/0.2.0/oasa-record.schema.json'],
+  ['schema/0.2.0/oasa-batch.schema.json', '/schema/0.2.0/oasa-batch.schema.json'],
 ]);
 
 function sitePath(siteDir, pathname) {

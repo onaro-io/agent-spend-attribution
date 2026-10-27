@@ -1,0 +1,22 @@
+{
+  "schema_version": "0.2",
+  "record_id": "01a17d3b-4a00-75f4-8e5a-bd4501f51c39",
+  "occurred_at": "2026-10-27T12:00:00Z",
+  "recorded_at": "2026-10-27T12:00:00Z",
+  "source_system": "conformance",
+  "source_record_id": "mapping/owner-alice",
+  "currency": "USD",
+  "record_type": "mapping",
+  "attribution_identity_type": "entra.agent_id",
+  "attribution_identity_value": "agent-1",
+  "valid_from": "2026-10-01T00:00:00Z",
+  "agent_id": "support-triage",
+  "agent_name": "Support Triage",
+  "agent_owner": "alice",
+  "owners": [
+    {
+      "principal": "alice",
+      "role": "owner"
+    }
+  ]
+}

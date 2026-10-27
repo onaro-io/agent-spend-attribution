@@ -14,6 +14,8 @@ const REQUIRED = [
   'https://oasaspec.org/schema/0.1/oasa-batch.schema.json',
   'https://oasaspec.org/schema/0.1.3/oasa-record.schema.json',
   'https://oasaspec.org/schema/0.1.3/oasa-batch.schema.json',
+  'https://oasaspec.org/schema/0.2.0/oasa-record.schema.json',
+  'https://oasaspec.org/schema/0.2.0/oasa-batch.schema.json',
 ];
 
 function fail(message) {
@@ -79,9 +81,15 @@ function checkPages(siteDir) {
     }
     if (page.includes('Meridian')) fail('specification page names Meridian');
   }
+  if (!spec.includes('<strong>Version 0.2.0</strong>')) fail('current specification is not 0.2.0');
   if (!spec.includes('href="../schema/0.1/oasa-record.schema.json"')) {
     fail('specification does not link the 0.1 schema at its $id path');
   }
+  if (!spec.includes('href="../schema/0.2.0/oasa-record.schema.json"')) {
+    fail('specification does not link the 0.2.0 schema at its $id path');
+  }
+  if (!pinned.includes('<strong>Version 0.1.3</strong>')) fail('0.1.3 page is not that specification');
+  if (pinned.includes('<strong>Version 0.2.0</strong>')) fail('0.1.3 page includes the 0.2.0 text');
   if (!spec.includes('href="../focus-mapping/"')) fail('specification does not link the FOCUS mapping');
   if (!spec.includes('https://github.com/onaro-io/agent-spend-attribution/blob/main/docs/research/attribution-identity-by-platform.md')) {
     fail('specification research link does not point at the repository');
